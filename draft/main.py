@@ -544,4 +544,4 @@ def run_complete_experiment(grid_size=350):
 
 # ЗАПУСК ПОЛНОГО ЭКСПЕРИМЕНТА
 if __name__ == "__main__":
-    run_complete_experiment(grid_size=350)
+    run_complete_experiment(grid_size=300)
