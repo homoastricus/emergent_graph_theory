@@ -15,7 +15,7 @@ class ElectronChargeCalculatorEmergent:
         self.N = N
         self.lambda_param = lambda_param
 
-        # ВАЖНО: используем ТОЛЬКО эмерджентные значения из вашей модели
+        # используем ТОЛЬКО эмерджентные значения из модели
         self.calculate_emergent_constants()
 
         # Экспериментальные значения для сравнения
@@ -29,21 +29,21 @@ class ElectronChargeCalculatorEmergent:
         )
 
     def calculate_emergent_constants(self):
-        """Вычисление эмерджентных констант (аналогично вашей основной модели)"""
+        """Вычисление эмерджентных констант (аналогично основной модели)"""
 
-        # 1. ħ_emergent (из вашего кода)
+        # 1. ħ_emergent
         self.hbar_emergent = (
                                      (np.log(self.K) ** 2) /
                                      (4 * self.lambda_param ** 2 * self.K ** 2)
                              ) * self.N ** (-1 / 3) / (6 * math.pi)
 
-        # 2. c_emergent (исправленная формула из вашего кода)
+        # 2. c_emergent (исправленная формула
         self.c_emergent = (
                 8 * math.pi ** 2 * self.K * np.log(self.N) ** 2 /
                 (self.p * np.log(self.K) ** 2 * abs(np.log(self.p * self.K)) ** 2)
         )
 
-        # 3. ε₀ emergent (из вашего кода)
+        # 3. ε₀ emergent
         self.epsilon0_emergent = (
                 (9 * (self.lambda_param ** 2) * (self.K ** (5 / 2)) * (self.p ** (7 / 2)) *
                  (self.N ** (1 / 3)) * (np.log(self.K) ** 2) *
@@ -51,7 +51,7 @@ class ElectronChargeCalculatorEmergent:
                 (16 * (np.pi ** 5) * (np.log(self.N) ** 15))
         )
 
-        # 4. α_em emergent (из вашего кода)
+        # 4. α_em emergent
         self.alpha_em_emergent = np.log(self.K) / np.log(self.N ** (3 / 2))
 
         # 5. Вычисляем константы связи из топологии
@@ -80,8 +80,6 @@ class ElectronChargeCalculatorEmergent:
         self.g_prime_emergent = self.g_emergent * np.sqrt(
             (1 / self.sin2_theta_W_emergent) - 1
         )
-
-
 
 
     def method1_electroweak_corrected(self):
