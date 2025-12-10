@@ -157,5 +157,5 @@ def find_p_for_given_N(N_target, K=8.0, tolerance=1e-10, max_iter=1000):
 
 
 # Проверяем найденное p
-N_check, _ = calculate_N_from_pK(0.05, K=8)
+N_check, _ = calculate_N_from_pK(0.0527, K=8)
 print(f"Проверка: N(p_found) = {N_check:.3e}")
