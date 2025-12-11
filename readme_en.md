@@ -125,7 +125,7 @@ Space-time is **not fundamental** — it **emerges** from patterns of quantum en
 ## 📈 Predictions and Testability
 
 ### 1. **Time Variation of Constants**
-The theory predicts slow drift of fundamental constants over time
+- The theory predicts slow drift of fundamental constants over time
 
 ### 2. **Cosmological Tests**
 - Predicts **N = 9.702×10e123** precisely
@@ -136,16 +136,8 @@ The theory predicts slow drift of fundamental constants over time
 
 If you use this code or theory in your research, please cite:
 
-```bibtex
-@software{emergent_graph_theory_2025,
-  author = {Arthur Mataryan},
-  title = {Emergent Physics Theory Based on Small-World Graph Model},
-  year = {2025},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/homoastricus/emergent_graph_theory}}
-}
-```
+Arthur Mataryan, Small-World Graph Emergent Physics Theory
+https://github.com/homoastricus/emergent_graph_theory
 
 ## 🤝 Contributing
 
@@ -176,5 +168,3 @@ For questions, collaboration, or discussions:
 ---
 
 **"All of physics emerges from three numbers: 8, 0.052702, and 10e123."**
-
-*This work suggests that the Universe is fundamentally simple, elegant, and mathematical at its core.*
