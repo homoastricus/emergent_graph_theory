@@ -1,3 +1,7 @@
+
+<script type="text/javascript"
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
 # Аналитические формулы из кода
 
 | Название переменной                   | Аналитическая формула                                                                                                                                    |
