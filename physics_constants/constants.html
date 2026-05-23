@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Единая структурная таблица физических констант и масс</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0b0f15;
+            background-image: radial-gradient(circle at 20% 10%, #1a2332 0%, #03050a 90%);
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+            color: #e0e6f0;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1600px;
+            backdrop-filter: blur(4px);
+        }
+
+        h1 {
+            font-weight: 500;
+            font-size: 1.9rem;
+            letter-spacing: 0.02em;
+            color: #cbd5e6;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(0, 140, 255, 0.25);
+            border-bottom: 1px solid rgba(70, 130, 200, 0.3);
+            padding-bottom: 0.6rem;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 1.5rem;
+            background: rgba(12, 18, 26, 0.7);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 25px 50px -10px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(70, 130, 200, 0.2);
+            padding: 0.3rem;
+            margin-bottom: 2.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+            font-size: 0.8rem;
+            table-layout: auto;
+        }
+
+        th {
+            background: rgba(20, 30, 45, 0.9);
+            color: #b7cdff;
+            font-weight: 550;
+            text-align: center;
+            padding: 0.8rem 0.5rem;
+            border-bottom: 2px solid #2e4b70;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            text-align: center;
+            padding: 0.55rem 0.5rem;
+            border-bottom: 1px solid rgba(55, 80, 120, 0.4);
+            color: #d3dce9;
+            background-color: rgba(10, 16, 24, 0.5);
+            transition: background 0.2s ease;
+        }
+
+        tr:hover td {
+            background-color: rgba(30, 55, 90, 0.6);
+            color: #f0f4ff;
+        }
+
+        .symbol {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            font-weight: 600;
+            color: #ffd78b;
+            background: rgba(20, 28, 40, 0.7);
+            letter-spacing: 0.02em;
+        }
+
+        .name-cell {
+            text-align: left;
+            font-weight: 450;
+            color: #cddbf5;
+            padding-left: 0.8rem;
+            white-space: normal;
+            min-width: 180px;
+        }
+
+        .empty-cell {
+            background: rgba(5, 8, 14, 0.4);
+            color: #3a4455;
+        }
+
+        .stars {
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            filter: drop-shadow(0 0 6px gold);
+        }
+
+        .star-gold {
+            color: #fbbf24;
+        }
+
+        .star-silver {
+            color: #c0caf5;
+        }
+
+        .star-bronze {
+            color: #b68b6e;
+        }
+
+        .value-number {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-weight: 450;
+        }
+
+        .error-low {
+            color: #9bcf9b;
+        }
+        .error-mid {
+            color: #fcd085;
+        }
+        .error-high {
+            color: #f9a8a8;
+        }
+
+        th:first-child,
+        td:first-child {
+            position: sticky;
+            left: 0;
+            background: #0f1724;
+            z-index: 5;
+            box-shadow: inset -1px 0 0 rgba(55, 80, 120, 0.5);
+        }
+
+        tr:hover td:first-child {
+            background: #1e3248;
+        }
+
+        .footer-note {
+            text-align: right;
+            font-size: 0.7rem;
+            color: #6b7d99;
+            margin-top: 0.8rem;
+        }
+
+        @media (max-width: 800px) {
+            body {
+                padding: 1rem;
+            }
+            h1 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+    <script>
+    MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        }
+    };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async>
+</script>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Единая структурная таблица физических констант и масс</h1>
+
+        <p class="subtitle" style="margin: auto; text-align: center">K = 6.0 | N = 4.1977·10¹²¹ |</p>
+
+        <div style="text-align:center; margin: 1.8rem 0; font-size: 1.1rem; color: #cbd5e6;">
+    $$ С =  (\sqrt{2})^a \cdot (\sqrt{3})^b \cdot \pi^c  \cdot (\ln K)^d  \cdot (\ln N)^e \cdot (N^{1/3})^f $$
+         <h5>Общая структурная формула физических констант и масс</h5>
+</div>
+
+        <div class="table-wrapper">
+            <table id="mainTable">
+                <thead>
+                    <tr>
+                        <th>Символ</th>
+                        <th>Название</th>
+                        <th>√2</th>
+                        <th>√3</th>
+                        <th>π</th>
+                        <th>ln K</th>
+                        <th>ln N</th>
+                        <th>N^(1/3)</th>
+                        <th>Предсказание</th>
+                        <th>Эксперимент</th>
+                        <th>Ошибка %</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <div class="footer-note">⋆ данные из единой структурной модели · статус по уровню согласия</div>
+    </div>
+
+    <script>
+        (function() {
+            //  ЕДИНЫЙ МАССИВ ДАННЫХ – редактировать здесь
+            const tableData = [
+                // [Символ, Название, √2, √3, π, lnK, lnN, N^(1/3), Предсказание, Эксперимент, Ошибка%, Статус]
+                ["hbar", "постоянная Планка (ред.)", "-2", "-2", "0", "0", "+3", "-1", "1.054327e-34",
+                    "1.054572e-34", "0.023225", "⭐⭐⭐"
+                ],
+                ["h", "постоянная Планка", "0", "-2", "+1.0", "0", "+3", "-1", "6.624531e-34", "6.626070e-34",
+                    "0.023225", "⭐⭐⭐"
+                ],
+                ["c", "скорость света", "-4", "-4", "+1.0", "-1", "+4", "0", "2.995533e+08", "2.997925e+08",
+                    "0.079771", "⭐⭐⭐"
+                ],
+                ["l_P", "планковская длина", "+4", "0", "0", "+1", "+2", "-1", "1.618973e-35", "1.616255e-35",
+                    "0.168169", "⭐⭐"
+                ],
+                ["t_P", "планковское время", "+8", "+4", "-1.0", "+2", "-2", "-1", "5.404624e-44", "5.391247e-44",
+                    "0.248126", "⭐⭐"
+                ],
+                ["E_P", "планковская энергия", "-10", "-6", "+1.0", "-2", "+5", "0", "1.950787e+09", "1.956082e+09",
+                    "0.270709", "⭐⭐"
+                ],
+                ["G", "гравитационная постоянная", "-2", "-10", "+3.0", "-1", "+13", "-1", "6.682305e-11",
+                    "6.674300e-11", "0.119945", "⭐⭐"
+                ],
+                ["m_P", "планковская масса", "-2", "+2", "-1.0", "0", "-3", "0", "2.174010e-08", "2.176434e-08",
+                    "0.111374", "⭐⭐"
+                ],
+                ["T_P", "планковская температура", "+6", "0", "+1.0", "0", "-4", "+1", "1.418687e+32", "1.416784e+32",
+                    "0.134347", "⭐⭐"
+                ],
+                ["k_B", "постоянная Больцмана", "-6", "0", "-2.0", "0", "+8", "-1", "1.379971e-23", "1.380649e-23",
+                    "0.049126", "⭐⭐⭐"
+                ],
+                ["alpha", "постоянная тонкой структуры", "+2", "0", "-1.0", "+2", "-1", "0", "7.298152e-03",
+                    "7.297353e-03", "0.010960", "⭐⭐⭐"
+                ],
+                ["eps0", "электрическая постоянная", "-6", "0", "-3.0", "-1", "-20", "+1", "8.875681e-12",
+                    "8.872537e-12", "0.035442", "⭐⭐⭐"
+                ],
+                ["mu0", "магнитная постоянная", "+14", "+8", "+1.0", "+3", "+12", "-1", "1.255596e-06",
+                    "1.256637e-06", "0.082814", "⭐⭐⭐"
+                ],
+                ["q_e", "элементарный заряд", "-3", "-3", "-1.0", "0", "-7", "0", "1.603382e-19", "1.602177e-19",
+                    "0.075220", "⭐⭐⭐"
+                ],
+                ["Z_0", "импеданс вакуума", "+10", "+4", "+2.0", "+2", "+16", "-1", "3.761181e+02", "3.767303e+02",
+                    "0.162519", "⭐⭐"
+                ],
+                ["Phi_0", "квант магнитного потока", "+1", "+1", "+2.0", "0", "+10", "-1", "2.065800e-15",
+                    "2.067834e-15", "0.098362", "⭐⭐⭐"
+                ],
+                ["R_inf", "постоянная Ридберга", "+1", "-3", "-1.0", "+3", "+3", "0", "1.094466e+07",
+                    "1.097373e+07", "0.264919", "⭐⭐"
+                ],
+                ["a_0", "боровский радиус", "-3", "+3", "-1.0", "-1", "-4", "0", "5.306411e-11", "5.291772e-11",
+                    "0.276626", "⭐⭐"
+                ],
+                ["lambda_e", "комптоновская длина (e)", "+1", "+3", "-1.0", "+1", "-5", "0", "2.433289e-12",
+                    "2.426000e-12", "0.300441", "⭐⭐"
+                ],
+                ["lambda_p", "комптоновская длина (p)", "+7", "+5", "-0.5", "+1", "-7", "0", "1.319856e-15",
+                    "1.321410e-15", "0.117582", "⭐⭐"
+                ],
+                ["Lambda", "космологическая постоянная", "0", "0", "-0.5", "0", "+12", "-2", "1.089025e-52",
+                    "1.089290e-52", "0.024334", "⭐⭐⭐"
+                ],
+                ["kappa", "постоянная Эйнштейна", "+20", "+6", "0", "+3", "-3", "-1", "2.085786e-43",
+                    "2.076647e-43", "0.440048", "⭐⭐"
+                ],
+                ["m_e", "масса электрона", "+3", "-1", "+1.0", "0", "+4", "-1", "9.088399e-31", "9.109384e-31",
+                    "0.230363", "⭐⭐"
+                ],
+                ["m_mu", "масса мюона", "+2", "-3", "+2.0", "0", "+5", "-1", "1.884637e-28", "1.883532e-28",
+                    "0.058665", "⭐⭐⭐"
+                ],
+                ["m_tau", "масса тау", "+4", "+4", "+0.5", "0", "+5", "-1", "3.165608e-27", "3.167000e-27",
+                    "0.043938", "⭐⭐⭐"
+                ],
+                ["m_pi_pm", "масса π±", "-5", "0", "-2.0", "0", "+6", "-1", "2.488466e-28", "2.488089e-28",
+                    "0.015145", "⭐⭐⭐"
+                ],
+                ["m_pi0", "масса π⁰", "+8", "+6", "+1.0", "0", "+4", "-1", "2.404290e-28", "2.406090e-28",
+                    "0.074829", "⭐⭐⭐"
+                ],
+                ["m_K0", "масса K⁰", "0", "0", "-1.5", "0", "+6", "-1", "8.821381e-28", "8.801929e-28", "0.220996",
+                    "⭐⭐"
+                ],
+                ["m_eta", "масса η", "0", "0", "+2.0", "0", "+5", "-1", "9.792859e-28", "9.767732e-28", "0.257246",
+                    "⭐⭐"
+                ],
+                ["m_eta'", "масса η'", "0", "0", "-1.0", "0", "+6", "-1", "1.705508e-27", "1.708600e-27",
+                "0.180993", "⭐⭐"],
+                ["m_rho", "масса ρ", "0", "0", "+2.5", "0", "+5", "-1", "1.503194e-27", "1.490000e-27", "0.885512",
+                    "⭐⭐"
+                ],
+                ["m_omega", "масса ω", "0", "0", "+2.0", "0", "+5", "-1", "1.384919e-27", "1.394000e-27",
+                "0.651405", "⭐⭐"],
+                ["m_phi", "масса φ", "0", "0", "+0.5", "0", "+5", "-1", "1.827665e-27", "1.819000e-27", "0.476356",
+                    "⭐⭐"
+                ],
+                ["m_K*", "масса K*", "0", "0", "-2.5", "0", "+6", "-1", "1.588407e-27", "1.590000e-27", "0.100212",
+                    "⭐⭐"
+                ],
+                ["m_J/psi", "масса J/ψ", "0", "0", "+2.0", "0", "+5", "-1", "5.539678e-27", "5.520610e-27",
+                    "0.345390", "⭐⭐"
+                ],
+                ["m_eta_c", "масса η_c", "0", "0", "0", "0", "+5", "-1", "5.358010e-27", "5.319000e-27", "0.733408",
+                    "⭐⭐"
+                ],
+                ["m_Upsilon", "масса Υ", "0", "0", "0", "0", "+6", "-1", "1.701579e-26", "1.687150e-26",
+                "0.855204", "⭐⭐"],
+                ["m_D0", "масса D⁰", "0", "0", "+0.5", "0", "+6", "-1", "3.351077e-27", "3.324790e-27", "0.790643",
+                    "⭐⭐"
+                ],
+                ["m_B", "масса B", "0", "0", "+2.0", "0", "+6", "-1", "9.329949e-27", "9.400000e-27", "0.745228",
+                    "⭐⭐"
+                ],
+                ["m_B_s", "масса B_s", "0", "0", "0", "0", "+6", "-1", "", "", "", ""],
+                ["m_p", "масса протона", "0", "0", "+0.5", "0", "+6", "-1", "1.675539e-27", "1.672622e-27",
+                    "0.174378", "⭐⭐"
+                ],
+                ["m_n", "масса нейтрона", "0", "0", "+0.5", "0", "+6", "-1", "", "", "", ""],
+                ["m_Lambda", "масса Λ", "0", "0", "-2.0", "0", "+6", "-1", "1.990772e-27", "1.990161e-27",
+                    "0.030721", "⭐⭐⭐"
+                ],
+                ["m_Sigma+", "масса Σ+", "0", "0", "-2.0", "0", "+6", "-1", "2.111533e-27", "2.119330e-27",
+                    "0.367895", "⭐⭐"
+                ],
+                ["m_Xi0", "масса Ξ⁰", "0", "0", "-0.5", "0", "+6", "-1", "2.369569e-27", "2.345320e-27",
+                "1.033949", "⭐"],
+                ["m_Omega-", "масса Ω⁻", "0", "0", "+1.0", "0", "+6", "-1", "2.969815e-27", "2.985900e-27",
+                    "0.538703", "⭐⭐"
+                ],
+                ["m_Delta", "масса Δ", "0", "0", "-1.0", "0", "+6", "-1", "2.211192e-27", "2.196000e-27",
+                "0.691816", "⭐⭐"],
+                ["m_Lambda_c", "масса Λ_c⁺", "0", "0", "+1.0", "0", "+6", "-1", "", "", "", ""],
+                ["m_Xi_c", "масса Ξ_c⁺", "0", "0", "-1.0", "0", "+6", "-1", "4.422385e-27", "4.399500e-27",
+                    "0.520163", "⭐⭐"
+                ],
+                ["m_Omega_c", "масса Ω_c⁰", "0", "0", "-2.5", "0", "+6", "-1", "4.765220e-27", "4.808000e-27",
+                    "0.889769", "⭐⭐"
+                ],
+                ["m_Lambda_b", "масса Λ_b⁰", "0", "0", "+0.5", "0", "+6", "-1", "", "", "", ""],
+                ["v_H", "вакуум Хиггса", "+5", "0", "+1.5", "0", "+6", "-1", "4.376291e-25", "4.388471e-25",
+                    "0.277549", "⭐⭐"
+                ],
+                ["m_Z", "масса Z-бозона", "0", "0", "0", "0", "+6", "-1", "1.620279e-25", "1.626140e-25",
+                "0.360425", "⭐⭐"],
+                ["m_W", "масса W-бозона", "0", "0", "0", "0", "+6", "-1", "1.435935e-25", "1.433620e-25",
+                "0.161470", "⭐⭐"],
+                ["m_H", "масса Хиггса", "0", "0", "0", "0", "+6", "-1", "2.239188e-25", "2.233190e-25", "0.268569",
+                    "⭐⭐"
+                ],
+            ];
+
+            // ──────────────────────────────────────────────
+            //  Генерация таблицы
+            // ──────────────────────────────────────────────
+            const tbody = document.getElementById('tableBody');
+
+            function getErrorClass(errorValue) {
+                const num = parseFloat(errorValue);
+                if (isNaN(num)) return '';
+                if (num < 0.1) return 'error-low';
+                if (num < 0.5) return 'error-mid';
+                return 'error-high';
+            }
+
+            function getStarClass(status) {
+                if (status.includes('⭐⭐⭐')) return 'stars star-gold';
+                if (status.includes('⭐⭐')) return 'stars star-silver';
+                if (status.includes('⭐')) return 'stars star-bronze';
+                return 'stars';
+            }
+
+            function buildTable() {
+                let html = '';
+                for (const row of tableData) {
+                    const [
+                        symbol,
+                        name,
+                        sqrt2,
+                        sqrt3,
+                        pi,
+                        lnK,
+                        lnN,
+                        nCubeRoot,
+                        prediction,
+                        experiment,
+                        error,
+                        status
+                    ] = row;
+
+                    const errorClass = getErrorClass(error);
+                    const starClass = getStarClass(status);
+
+                    const predictionDisplay = prediction || '';
+                    const experimentDisplay = experiment || '';
+                    const errorDisplay = error || '';
+                    const statusDisplay = status || '';
+
+                    html += `
+                    <tr>
+                        <td class="symbol">${symbol}</td>
+                        <td class="name-cell">${name}</td>
+                        <td>${sqrt2}</td>
+                        <td>${sqrt3}</td>
+                        <td>${pi}</td>
+                        <td>${lnK}</td>
+                        <td>${lnN}</td>
+                        <td>${nCubeRoot}</td>
+                        <td class="value-number">${predictionDisplay}</td>
+                        <td class="value-number">${experimentDisplay}</td>
+                        <td class="value-number ${errorClass}">${errorDisplay}</td>
+                        <td class="${starClass}">${statusDisplay}</td>
+                    </tr>`;
+                }
+                tbody.innerHTML = html;
+            }
+
+            buildTable();
+        })();
+    </script>
+</body>
+</html>

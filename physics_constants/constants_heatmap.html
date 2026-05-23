@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>6D визуализация · Структурные координаты</title>
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js">
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0b0f15;
+            background-image: radial-gradient(circle at 30% 20%, #141e2c 0%, #03050a 95%);
+            font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+            color: #d0d8e8;
+            padding: 1.5rem 1.5rem 3rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1700px;
+        }
+
+        h1 {
+            font-weight: 500;
+            font-size: 1.8rem;
+            color: #cbd5e6;
+            margin-bottom: 0.3rem;
+            text-align: center;
+            text-shadow: 0 2px 12px rgba(80, 160, 255, 0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7b8da6;
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+            letter-spacing: 0.03em;
+        }
+
+        .section-title {
+            font-weight: 500;
+            font-size: 1.15rem;
+            color: #b8c7e0;
+            margin: 1.8rem 0 0.6rem 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #5b8cc9;
+            border-radius: 2px;
+        }
+
+        .plot-card {
+            background: rgba(11, 17, 26, 0.65);
+            backdrop-filter: blur(14px);
+            border-radius: 1.3rem;
+            padding: 0.8rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 18px 45px -12px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(70, 140, 220, 0.2);
+            overflow: hidden;
+        }
+
+        .plot-container {
+            width: 100%;
+            border-radius: 0.8rem;
+            min-height: 1000px;
+        }
+
+        .legend-note {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 0.8rem 0;
+            font-size: 0.7rem;
+            color: #9aa9c0;
+        }
+
+        .legend-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.3rem;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 0.68rem;
+            color: #556680;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🔬 Пространство структурных координат</h1>
+    <p class="subtitle">54 физические величины в 6-мерной системе · √2, √3, π, ln K, ln N, N<sup>1/3</sup></p>
+
+
+    <!-- 3D проекция -->
+    <div class="section-title">🧊 3D-проекция: √2 × √3 × π</div>
+    <div class="plot-card">
+        <div id="scatter3D" class="plot-container" style="height:600px;"></div>
+    </div>
+
+    <div class="section-title">🧊 3D-проекция: lnK × lnN × N</div>
+        <div class="plot-card">
+        <div id="scatter3D_2" class="plot-container" style="height:600px;"></div>
+    </div>
+
+    <p class="footer-note">⋆ каждая точка — одна физическая величина · 54 уникальные комбинации из ~1,4 млн возможных ·
+        загрузка 0.0038%</p>
+</div>
+
+<script>
+    (function () {
+        //  ДАННЫЕ (тот же массив + классификация)
+        const tableData = [
+            ["hbar", "пост. Планка (ред.)", -2, -2, 0, 0, 3, -1, "constant"],
+            ["h", "пост. Планка", 0, -2, 1.0, 0, 3, -1, "constant"],
+            ["c", "скорость света", -4, -4, 1.0, -1, 4, 0, "constant"],
+            ["l_P", "планковская длина", 4, 0, 0, 1, 2, -1, "planck"],
+            ["t_P", "планковское время", 8, 4, -1.0, 2, -2, -1, "planck"],
+            ["E_P", "планковская энергия", -10, -6, 1.0, -2, 5, 0, "planck"],
+            ["G", "гравитационная пост.", -2, -10, 3.0, -1, 13, -1, "constant"],
+            ["m_P", "планковская масса", -2, 2, -1.0, 0, -3, 0, "planck"],
+            ["T_P", "планковская темп.", 6, 0, 1.0, 0, -4, 1, "planck"],
+            ["k_B", "пост. Больцмана", -6, 0, -2.0, 0, 8, -1, "constant"],
+            ["alpha", "пост. тонкой структуры", 2, 0, -1.0, 2, -1, 0, "constant"],
+            ["eps0", "электрическая пост.", -6, 0, -3.0, -1, -20, 1, "constant"],
+            ["mu0", "магнитная постоянная", 14, 8, 1.0, 3, 12, -1, "constant"],
+            ["q_e", "элементарный заряд", -3, -3, -1.0, 0, -7, 0, "constant"],
+            ["Z_0", "импеданс вакуума", 10, 4, 2.0, 2, 16, -1, "constant"],
+            ["Phi_0", "квант магнитного потока", 1, 1, 2.0, 0, 10, -1, "constant"],
+            ["R_inf", "постоянная Ридберга", 1, -3, -1.0, 3, 3, 0, "constant"],
+            ["a_0", "боровский радиус", -3, 3, -1.0, -1, -4, 0, "constant"],
+            ["lambda_e", "комптоновская длина (e)", 1, 3, -1.0, 1, -5, 0, "constant"],
+            ["lambda_p", "комптоновская длина (p)", 7, 5, -0.5, 1, -7, 0, "constant"],
+            ["Lambda", "космологическая пост.", 0, 0, -0.5, 0, 12, -2, "constant"],
+            ["kappa", "постоянная Эйнштейна", 20, 6, 0, 3, -3, -1, "constant"],
+            ["m_e", "масса электрона", 3, -1, 1.0, 0, 4, -1, "lepton"],
+            ["m_mu", "масса мюона", 2, -3, 2.0, 0, 5, -1, "lepton"],
+            ["m_tau", "масса тау", 4, 4, 0.5, 0, 5, -1, "lepton"],
+            ["m_pi_pm", "масса π±", -5, 0, -2.0, 0, 6, -1, "meson"],
+            ["m_pi0", "масса π⁰", 8, 6, 1.0, 0, 4, -1, "meson"],
+            ["m_K0", "масса K⁰", 0, 0, -1.5, 0, 6, -1, "meson"],
+            ["m_eta", "масса η", 0, 0, 2.0, 0, 5, -1, "meson"],
+            ["m_eta'", "масса η'", 0, 0, -1.0, 0, 6, -1, "meson"],
+            ["m_rho", "масса ρ", 0, 0, 2.5, 0, 5, -1, "resonance"],
+            ["m_omega", "масса ω", 0, 0, 2.0, 0, 5, -1, "resonance"],
+            ["m_phi", "масса φ", 0, 0, 0.5, 0, 5, -1, "resonance"],
+            ["m_K*", "масса K*", 0, 0, -2.5, 0, 6, -1, "resonance"],
+            ["m_J/psi", "масса J/ψ", 0, 0, 2.0, 0, 5, -1, "resonance"],
+            ["m_eta_c", "масса η_c", 0, 0, 0, 0, 5, -1, "resonance"],
+            ["m_Upsilon", "масса Υ", 0, 0, 0, 0, 6, -1, "resonance"],
+            ["m_D0", "масса D⁰", 0, 0, 0.5, 0, 6, -1, "meson"],
+            ["m_B", "масса B", 0, 0, 2.0, 0, 6, -1, "meson"],
+            ["m_B_s", "масса B_s", 0, 0, 0, 0, 6, -1, "meson"],
+            ["m_p", "масса протона", 0, 0, 0.5, 0, 6, -1, "baryon"],
+            ["m_n", "масса нейтрона", 0, 0, 0.5, 0, 6, -1, "baryon"],
+            ["m_Lambda", "масса Λ", 0, 0, -2.0, 0, 6, -1, "baryon"],
+            ["m_Sigma+", "масса Σ+", 0, 0, -2.0, 0, 6, -1, "baryon"],
+            ["m_Xi0", "масса Ξ⁰", 0, 0, -0.5, 0, 6, -1, "baryon"],
+            ["m_Omega-", "масса Ω⁻", 0, 0, 1.0, 0, 6, -1, "baryon"],
+            ["m_Delta", "масса Δ", 0, 0, -1.0, 0, 6, -1, "baryon"],
+            ["m_Lambda_c", "масса Λ_c⁺", 0, 0, 1.0, 0, 6, -1, "baryon"],
+            ["m_Xi_c", "масса Ξ_c⁺", 0, 0, -1.0, 0, 6, -1, "baryon"],
+            ["m_Omega_c", "масса Ω_c⁰", 0, 0, -2.5, 0, 6, -1, "baryon"],
+            ["m_Lambda_b", "масса Λ_b⁰", 0, 0, 0.5, 0, 6, -1, "baryon"],
+            ["v_H", "вакуум Хиггса", 5, 0, 1.5, 0, 6, -1, "higgs"],
+            ["m_Z", "масса Z-бозона", 0, 0, 0, 0, 6, -1, "boson"],
+            ["m_W", "масса W-бозона", 0, 0, 0, 0, 6, -1, "boson"],
+            ["m_H", "масса Хиггса", 0, 0, 0, 0, 6, -1, "higgs"],
+        ];
+
+        const paramNames = ['√2', '√3', 'π', 'ln K', 'ln N', 'N^(1/3)'];
+        const paramKeys = ['sqrt2', 'sqrt3', 'pi', 'lnK', 'lnN', 'n13'];
+
+        // Преобразуем в массив объектов
+        const points = tableData.map(row => ({
+            symbol: row[0],
+            name: row[1],
+            sqrt2: row[2],
+            sqrt3: row[3],
+            pi: row[4],
+            lnK: row[5],
+            lnN: row[6],
+            n13: row[7],
+            category: row[8],
+            label: row[0] + ' · ' + row[1]
+        }));
+        const catGroups = {};
+        points.forEach(p => {
+            if (!catGroups[p.category]) catGroups[p.category] = [];
+            catGroups[p.category].push(p);
+        });
+
+        // Цветовая схема по категориям
+        const categoryColors = {
+            'constant': '#f59e0b',
+            'planck': '#fbbf24',
+            'lepton': '#60a5fa',
+            'meson': '#f472b6',
+            'resonance': '#e879f9',
+            'baryon': '#a78bfa',
+            'higgs': '#34d399',
+            'boson': '#6ee7b7'
+        };
+
+        const categoryNames = {
+            'constant': 'Константы',
+            'planck': 'Планковские',
+            'lepton': 'Лептоны',
+            'meson': 'Мезоны',
+            'resonance': 'Резонансы',
+            'baryon': 'Барионы',
+            'higgs': 'Хиггс',
+            'boson': 'Бозоны'
+        };
+
+
+        //  3. 3D-ПРОЕКЦИЯ (√2 × √3 × π)
+        function build3DScatter() {
+            const traces3D = [];
+
+            for (const [cat, pts] of Object.entries(catGroups)) {
+                const trace = {
+                    type: 'scatter3d',
+                    mode: 'markers',
+                    x: pts.map(p => p.sqrt2),
+                    y: pts.map(p => p.sqrt3),
+                    z: pts.map(p => p.pi),
+                    text: pts.map(p => p.label),
+                    name: categoryNames[cat] || cat,
+                    marker: {
+                        color: categoryColors[cat] || '#ccc',
+                        size: 5,
+                        opacity: 0.9,
+                        line: {color: 'rgba(255,255,255,0.2)', width: 0.5}
+                    },
+                    hovertemplate: '<b>%{text}</b><br>√2: %{x}<br>√3: %{y}<br>π: %{z}<extra></extra>'
+                };
+                traces3D.push(trace);
+            }
+
+            const layout3D = {
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                scene: {
+                    xaxis: {title: '√2', gridcolor: 'rgba(60,90,130,0.3)', color: '#b8c7e0'},
+                    yaxis: {title: '√3', gridcolor: 'rgba(60,90,130,0.3)', color: '#b8c7e0'},
+                    zaxis: {title: 'π', gridcolor: 'rgba(60,90,130,0.3)', color: '#b8c7e0'},
+                    bgcolor: 'rgba(8,14,22,0.5)',
+                    camera: {eye: {x: 1.5, y: 1.2, z: 1.8}}
+                },
+                font: {color: '#c0cdf0'},
+                margin: {l: 10, r: 10, t: 20, b: 20},
+                height: 600,
+                legend: {
+                    orientation: 'h',
+                    y: -0.08,
+                    x: 0.5,
+                    xanchor: 'center',
+                    font: {size: 10, color: '#c0cdf0'}
+                }
+            };
+
+            Plotly.newPlot('scatter3D', traces3D, layout3D, {
+                responsive: true,
+                displayModeBar: true,
+                modeBarButtonsToRemove: ['sendDataToCloud', 'autoScale2d', 'hoverClosestCartesian',
+                    'hoverCompareCartesian'
+                ],
+                displaylogo: false
+            });
+        }
+
+        function build3DScatter2() {
+            const traces3D = [];
+
+            for (const [cat, pts] of Object.entries(catGroups)) {
+                const trace = {
+                    type: 'scatter3d',
+                    mode: 'markers',
+                    x: pts.map(p => p.lnK),
+                    y: pts.map(p => p.lnN),
+                    z: pts.map(p => p.n13),
+                    text: pts.map(p => p.label),
+                    name: categoryNames[cat] || cat,
+                    marker: {
+                        color: categoryColors[cat] || '#ccc',
+                        size: 5,
+                        opacity: 0.9,
+                        line: {color: 'rgba(255,255,255,0.2)', width: 0.5}
+                    },
+                    hovertemplate: '<b>%{text}</b><br>ln K: %{x}<br>ln N: %{y}<br>N^(1/3): %{z}<extra></extra>'
+                };
+                traces3D.push(trace);
+            }
+
+            const layout3D = {
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                scene: {
+                    xaxis: {
+                        title: 'ln K', gridcolor: 'rgba(60,90,130,0.3)', color: '#b8c7e0',
+                        dtick: 1
+                    },
+                    yaxis: {title: 'ln N', gridcolor: 'rgba(60,90,130,0.3)', color: '#b8c7e0'},
+                    zaxis: {
+                        title: 'N^(1/3)', gridcolor: 'rgba(60,90,130,0.3)', color: '#b8c7e0',
+                        tickvals: [-2, -1, 0, 1]
+                    },
+                    bgcolor: 'rgba(8,14,22,0.5)',
+                    camera: {eye: {x: 1.5, y: 1.2, z: 1.8}}
+                },
+                font: {color: '#c0cdf0'},
+                margin: {l: 10, r: 10, t: 20, b: 20},
+                height: 600,
+                legend: {
+                    orientation: 'h',
+                    y: -0.08,
+                    x: 0.5,
+                    xanchor: 'center',
+                    font: {size: 10, color: '#c0cdf0'}
+                }
+            };
+
+            Plotly.newPlot('scatter3D_2', traces3D, layout3D, {
+                responsive: true,
+                displayModeBar: true,
+                modeBarButtonsToRemove: ['sendDataToCloud', 'autoScale2d', 'hoverClosestCartesian',
+                    'hoverCompareCartesian'
+                ],
+                displaylogo: false
+            });
+        }
+        //  ЗАПУСК ВСЕХ ВИЗУАЛИЗАЦИЙ
+        build3DScatter();
+        build3DScatter2();
+
+        // Адаптивный ресайз
+        window.addEventListener('resize', () => {
+            Plotly.Plots.resize('scatterMatrix');
+            Plotly.Plots.resize('parallelCoords');
+            Plotly.Plots.resize('scatter3D');
+        });
+
+        console.log('✅ 6D визуализация загружена. 54 величины × 6 координат.');
+        console.log('   Матрица проекций | Параллельные координаты | 3D (√2,√3,π)');
+        console.log('   Загрузка пространства: 54 / ~1.4M = 0.0038%');
+    })();
+</script>
+</body>
+</html>

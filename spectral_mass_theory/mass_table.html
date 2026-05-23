@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Периодическая таблица отношений масс частиц | K=6</title>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            startup: {
+                ready() {
+                    MathJax.startup.defaultReady();
+                    MathJax.startup.promise.then(() => {
+                        buildTable();
+                        buildStats();
+                    });
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+            --gold: #d2991d;
+            --red: #f85149;
+            --green: #3fb950;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--accent);
+            margin-bottom: 5px;
+            font-size: 1.6em;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-size: 0.85em;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8em;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 2px;
+        }
+
+        .ln4 {
+            background: rgba(255, 99, 71, 0.5);
+        }
+
+        .ln5 {
+            background: rgba(54, 162, 235, 0.5);
+        }
+
+        .ln6 {
+            background: rgba(255, 206, 86, 0.5);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .controls button {
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--surface);
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.2s;
+        }
+
+        .controls button:hover {
+            background: #30363d;
+        }
+
+        .controls button.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+
+        .search-box {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--surface);
+            color: var(--text);
+            width: 300px;
+            font-size: 0.85em;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .table-container {
+            overflow: auto;
+            max-height: 75vh;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
+        }
+
+        table {
+            border-collapse: collapse;
+            font-size: 0.65em;
+            white-space: nowrap;
+            min-width: 100%;
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 4px 5px;
+            text-align: center;
+            min-width: 95px;
+            max-width: 120px;
+        }
+
+        th {
+            background: #1c2333;
+            position: sticky;
+            top: 0;
+            z-index: 3;
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 0.85em;
+        }
+
+        th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 4;
+            background: #0f1923;
+            min-width: 160px;
+            max-width: 160px;
+        }
+
+        td:first-child {
+            position: sticky;
+            left: 0;
+            background: #0d1520;
+            font-weight: 600;
+            text-align: left;
+            z-index: 2;
+            min-width: 160px;
+            max-width: 160px;
+            font-size: 0.85em;
+        }
+
+        .corner {
+            background: #0a1018 !important;
+            z-index: 5 !important;
+        }
+
+        .diagonal {
+            background: rgba(63, 185, 80, 0.25) !important;
+            font-weight: bold;
+            color: var(--green);
+            font-size: 1.1em;
+        }
+
+        .row-ln4 td:first-child {
+            background: rgba(255, 99, 71, 0.25);
+        }
+
+        .row-ln5 td:first-child {
+            background: rgba(54, 162, 235, 0.25);
+        }
+
+        .row-ln6 td:first-child {
+            background: rgba(255, 206, 86, 0.25);
+        }
+
+        .row-ln4 td {
+            background: rgba(255, 99, 71, 0.06);
+        }
+
+        .row-ln5 td {
+            background: rgba(54, 162, 235, 0.06);
+        }
+
+        .row-ln6 td {
+            background: rgba(255, 206, 86, 0.06);
+        }
+
+        .row-ln4 td.diagonal {
+            background: rgba(63, 185, 80, 0.25) !important;
+        }
+
+        .row-ln5 td.diagonal {
+            background: rgba(63, 185, 80, 0.25) !important;
+        }
+
+        .row-ln6 td.diagonal {
+            background: rgba(63, 185, 80, 0.25) !important;
+        }
+
+        .cell-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            line-height: 1.35;
+        }
+
+        .cell-formula {
+            color: var(--gold);
+            font-size: 0.8em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cell-model {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.75em;
+        }
+
+        .cell-exp {
+            color: #ff7b72;
+            font-size: 0.72em;
+        }
+
+        .cell-teta {
+            font-size: 0.72em;
+            font-weight: 600;
+        }
+
+        .teta-good {
+            color: var(--green);
+        }
+
+        .teta-ok {
+            color: var(--gold);
+        }
+
+        .teta-bad {
+            color: var(--red);
+        }
+
+        tr:hover td {
+            filter: brightness(1.4);
+        }
+
+        tr:hover td:first-child {
+            filter: brightness(1.2);
+        }
+
+        td:hover {
+            filter: brightness(1.8) !important;
+            transform: scale(1.03);
+            z-index: 10;
+            position: relative;
+            transition: all 0.15s ease;
+            box-shadow: 0 0 12px rgba(88, 166, 255, 0.4);
+        }
+
+        td.diagonal:hover {
+            box-shadow: 0 0 12px rgba(63, 185, 80, 0.5);
+        }
+
+        .stats {
+            margin-top: 25px;
+            padding: 20px;
+            background: var(--surface);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .stats h2 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .stat-item {
+            padding: 12px;
+            background: #1c2333;
+            border-radius: 5px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            color: var(--accent);
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        .no-data {
+            color: #3d444d;
+            text-align: center;
+            font-style: italic;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-corner {
+            background: var(--bg);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.2em;
+            }
+
+            table {
+                font-size: 0.55em;
+            }
+
+            th, td {
+                padding: 2px 3px;
+                min-width: 70px;
+            }
+
+            td:first-child, th:first-child {
+                min-width: 120px;
+                max-width: 120px;
+                font-size: 0.7em;
+            }
+        }
+    </style>
+</head>
+<body>
+<h1>Периодическая таблица отношений масс частиц</h1>
+<p class="subtitle">K = 6.0 &nbsp;|&nbsp; N = 4.1977·10¹²¹ &nbsp;|&nbsp; Формат: <span
+        style="color:#d2991d">Формула</span> → <span style="color:#58a6ff">Модель</span> / <span style="color:#ff7b72">Эксперимент</span>
+    (Teta)</p>
+
+<div class="legend">
+    <div class="legend-item">
+        <div class="legend-color ln6"></div>
+        lnN⁶ — тяжёлые
+    </div>
+    <div class="legend-item">
+        <div class="legend-color ln5"></div>
+        lnN⁵ — средние
+    </div>
+    <div class="legend-item">
+        <div class="legend-color ln4"></div>
+        lnN⁴ — лёгкие
+    </div>
+</div>
+
+<div class="controls">
+    <button onclick="filterByLn(0)" id="btn-all" class="active">Все</button>
+    <button onclick="filterByLn(4)" id="btn-ln4">lnN⁴</button>
+    <button onclick="filterByLn(5)" id="btn-ln5">lnN⁵</button>
+    <button onclick="filterByLn(6)" id="btn-ln6">lnN⁶</button>
+</div>
+
+<div class="export-controls" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+    <button onclick="exportToCSV()" style="padding: 6px 14px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 0.8em;">📥 Экспорт CSV</button>
+    <button onclick="exportToJSON()" style="padding: 6px 14px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 0.8em;">📥 Экспорт JSON</button>
+    <button onclick="copyTableToClipboard()" style="padding: 6px 14px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 0.8em;">📋 Копировать таблицу</button>
+    <button onclick="printTable()" style="padding: 6px 14px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 0.8em;">🖨️ Печать</button>
+</div>
+
+<div class="search-box">
+    <input type="text" id="searchInput" placeholder="Поиск частицы..." oninput="filterTable()">
+</div>
+
+<div class="table-container" id="tableContainer">
+    <div style="padding:40px;text-align:center;color:var(--text-secondary);">
+        Загрузка таблицы...
+    </div>
+</div>
+
+<div class="stats">
+    <h2>Статистика</h2>
+    <div class="stats-grid" id="statsGrid"></div>
+</div>
+
+<script>
+    // ===== CONSTANTS =====
+    const K = 6.0;
+    const pi = Math.PI;
+    const N_val = 4.1977e121;
+    const lnN = Math.log(N_val);
+
+    function toLatex(expr) {
+        let result = expr
+            // lnN специальные случаи
+            .replace(/lnN\^1\s+/g, '\\ln N \\; ')
+            .replace(/lnN\^1(?![-\d\{])/g, '\\ln N')
+            .replace(/lnN\^\{-1\}/g, '\\ln N^{-1}')
+            .replace(/lnN\*\*1\s+/g, '\\ln N \\; ')
+            .replace(/lnN\*\*1(?![-\d])/g, '\\ln N')
+            .replace(/lnN\*\*\(-1\)/g, '\\ln N^{-1}')
+            .replace(/lnN/g, '\\ln N')
+            // ** -> ^
+            .replace(/\*\*/g, '^')
+            // * -> cdot
+            .replace(/\*/g, ' \\cdot ')
+            // math.sqrt -> \sqrt
+            .replace(/math\.sqrt\(([^)]+)\)/g, '\\sqrt{$1}')
+            // pi
+            .replace(/pi/g, '\\pi')
+            // Убираем пробелы вокруг ^
+            .replace(/\s*\^\s*/g, '^');
+
+        // Рекурсивно заменяем круглые скобки на фигурные
+        let prev = '';
+        while (prev !== result) {
+            prev = result;
+            result = result.replace(/\(([^()]+)\)/g, '{$1}');
+        }
+
+        // Заменяем ^{1/2} на \sqrt{...}
+        result = result.replace(/\{([^}]+)\}\^\{1\/2\}/g, '\\sqrt{$1}');
+        result = result.replace(/\{([^}]+)\}\^\{1\/3\}/g, '\\sqrt[3]{$1}');
+        result = result.replace(/([a-zA-Z\\]+)\^\{1\/2\}/g, '\\sqrt{$1}');
+        result = result.replace(/([a-zA-Z\\]+)\^\{1\/3\}/g, '\\sqrt[3]{$1}');
+        result = result.replace(/(\d+)\^\{1\/2\}/g, '\\sqrt{$1}');
+        result = result.replace(/(\d+)\^\{1\/3\}/g, '\\sqrt[3]{$1}');
+
+        // Преобразуем в горизонтальную дробь ТОЛЬКО если есть знак деления
+        // и он последний (не внутри фигурных скобок и не внутри frac)
+        if (result.includes(' / ') && !result.includes('\\frac')) {
+            // Находим ПОСЛЕДНИЙ знак деления на верхнем уровне
+            let depth = 0;
+            let lastDivPos = -1;
+            for (let i = 0; i < result.length - 2; i++) {
+                if (result[i] === '{') depth++;
+                if (result[i] === '}') depth--;
+                if (depth === 0 && result.substring(i, i + 3) === ' / ') {
+                    lastDivPos = i;
+                }
+            }
+            if (lastDivPos > 0) {
+                const numerator = result.substring(0, lastDivPos);
+                const denominator = result.substring(lastDivPos + 3);
+                if (numerator && denominator) {
+                    result = '\\frac{' + numerator + '}{' + denominator + '}';
+                }
+            }
+        }
+
+        // Оборачиваем оставшиеся показатели степени с дробями в двойные скобки
+        result = result.replace(/\^\{([^}]+)\}/g, function (match, content) {
+            if (content.includes('/')) {
+                return '^{{' + content + '}}';
+            }
+            return match;
+        });
+
+        // Убираем лишние пробелы
+        result = result.replace(/^\s+/, '').replace(/\s+$/, '');
+
+        return result;
+    }
+
+    const particles = [
+        {id: 'm_e_val', name: 'e (электрон)', mass: 9.1093837015e-31, type: 'лептон', ln: 4},
+        {id: 'm_qu_u', name: 'u-кварк', mass: 2.1650e-30, type: 'кварк', ln: 5},
+        {id: 'm_qu_d', name: 'd-кварк', mass: 4.7915e-30, type: 'кварк', ln: 5},
+        {id: 'm_qu_s', name: 's-кварк', mass: 9.635e-30, type: 'кварк', ln: 4},
+        {id: 'm_muon', name: 'μ (мюон)', mass: 1.883531627e-28, type: 'лептон', ln: 5},
+        {id: 'm_pi0_meson', name: 'π⁰-мезон', mass: 2.40609e-28, type: 'мезон', ln: 4},
+        {id: 'm_pi_meson', name: 'π-мезон', mass: 2.4880888e-28, type: 'мезон', ln: 6},
+        {id: 'm_k0_meson', name: 'K⁰-мезон', mass: 8.801929e-28, type: 'мезон', ln: 6},
+        {id: 'm_eta', name: 'η-мезон', mass: 9.767732e-28, type: 'мезон', ln: 5},
+        {id: 'm_qu_c', name: 'c-кварк', mass: 1.27e-27, type: 'кварк', ln: 6},
+        {id: 'omega_meson', name: 'ω-мезон', mass: 1.394e-27, type: 'мезон', ln: 5},
+        {id: 'm_proton_val', name: 'p (протон)', mass: 1.67262192e-27, type: 'барион', ln: 6},
+        {id: 'eta_shtrih', name: "η'-мезон", mass: 1.7086e-27, type: 'мезон', ln: 5},
+        {id: 'phi_meson', name: 'φ-мезон', mass: 1.819e-27, type: 'мезон', ln: 5},
+        {id: 'm_Λ_barion', name: 'Λ-барион', mass: 1.9901611e-27, type: 'барион', ln: 6},
+        {id: 'Sigma_plus', name: 'Σ⁺-барион', mass: 2.11933e-27, type: 'барион', ln: 6},
+        {id: 'Sigma_minus', name: 'Σ⁻-барион', mass: 2.132e-27, type: 'барион', ln: 6},
+        {id: 'Ksi_0', name: 'Ξ⁰-барион', mass: 2.34532e-27, type: 'барион', ln: 6},
+        {id: 'omega_minus', name: 'Ω⁻-барион', mass: 2.9859e-27, type: 'барион', ln: 6},
+        {id: 'm_tau', name: 'τ (тау)', mass: 3.167e-27, type: 'лептон', ln: 5},
+        {id: 'm_DT', name: 'DT', mass: 3.3435837724e-27, type: 'мезон', ln: 6},
+        {id: 'Lambda_plus', name: 'Λ⁺_c-барион', mass: 4.0737e-27, type: 'барион', ln: 6},
+        {id: 'm_qu_b', name: 'b-кварк', mass: 4.180e-27, type: 'кварк', ln: 6},
+        {id: 'Ksi_plus', name: 'Ξ⁺-барион', mass: 4.3995e-27, type: 'барион', ln: 6},
+        {id: 'Omega0_c', name: 'Ω⁰_c-барион', mass: 4.808e-27, type: 'барион', ln: 6},
+        {id: 'm_J_ψ', name: 'J/ψ-мезон', mass: 5.52061e-27, type: 'мезон', ln: 5},
+        {id: 'lambda_B0', name: 'Λ⁰_b-барион', mass: 1.0023e-26, type: 'барион', ln: 6},
+        {id: 'm_Υ_1S', name: 'Υ(1S)-мезон', mass: 1.68715e-26, type: 'мезон', ln: 6},
+        {id: 'm_w_bozon', name: 'W-бозон', mass: 1.43362e-25, type: 'бозон', ln: 6},
+        {id: 'm_z_bozon', name: 'Z-бозон', mass: 1.62614e-25, type: 'бозон', ln: 6},
+        {id: 'm_Higgs', name: 'H (Хиггс)', mass: 2.23319e-25, type: 'бозон', ln: 6},
+        {id: 'm_qu_t', name: 't-кварк', mass: 3.04e-25, type: 'кварк', ln: 6}
+    ];
+
+    particles.sort((a, b) => a.mass - b.mass);
+
+    const rawRelations = [
+        {expr: 'lnN**2 / (4 * K * pi**(1/2))', first_var: 'm_proton_val', second_var: 'm_e_val'},
+        {expr: '(K / pi) ** (1/2)', first_var: 'm_Higgs', second_var: 'm_z_bozon'},
+        {expr: '2 * math.sqrt(K) / pi', first_var: 'm_Higgs', second_var: 'm_w_bozon'},
+        {expr: '4 * pi**2 / (K * 3**(1/2))', first_var: 'm_DT', second_var: 'm_k0_meson'},
+        {expr: '2**(1/2) * K**(1/2) / 3**(1/2)', first_var: 'm_DT', second_var: 'm_proton_val'},
+        {expr: '2 * pi**(3/2) / K**(3/2)', first_var: 'm_qu_c', second_var: 'm_proton_val'},
+        {expr: '4 * pi**2', first_var: 'm_muon', second_var: 'm_qu_d'},
+        {expr: 'pi**(1/2) * K**3 * 3**(1/2)', first_var: 'm_tau', second_var: 'm_qu_d'},
+        {expr: '8 * pi**2 * 2**(1/2) * K * 3**(1/2)', first_var: 'm_J_ψ', second_var: 'm_qu_d'},
+        {expr: '2 / (K * 3**(1/2))', first_var: 'm_muon', second_var: 'm_eta'},
+        {expr: '3**(1/2) * K**(3/2) / (2**(1/2) * pi**(1/2))', first_var: 'm_Υ_1S', second_var: 'm_proton_val'},
+        {expr: '2*(pi**4)/K**6', first_var: 'm_qu_c', second_var: 'm_qu_t'},
+        {expr: '4 / (pi ** (1/2))', first_var: 'm_Λ_barion', second_var: 'm_k0_meson'},
+        {expr: '2/(pi ** (1/2))', first_var: 'm_z_bozon', second_var: 'm_w_bozon'},
+        {expr: 'pi / (2 * K ** (1 / 2))', first_var: 'm_w_bozon', second_var: 'm_Higgs'},
+        {expr: '1/ (math.sqrt(2) * math.sqrt(pi))', first_var: 'm_proton_val', second_var: 'm_qu_b'},
+        {expr: 'K * 2**(1/2) / (4 * pi**(9/2))', first_var: 'm_Λ_barion', second_var: 'm_z_bozon'},
+        {expr: '(pi) ** (5 / 2) / (K * 3 ** (1 / 2))', first_var: 'm_DT', second_var: 'm_Λ_barion'},
+        {expr: '3 ** (1 / 2) * (K**3)/ ((2 ** (1 / 2)) * 2*pi**2)', first_var: 'm_Υ_1S', second_var: 'm_qu_c'},
+        {expr: '2 * pi * 3**(1/2) / K**2', first_var: 'm_qu_c', second_var: 'm_qu_b'},
+        {expr: 'K**2 / (2 * pi * 3**(1/2))', first_var: 'm_qu_b', second_var: 'm_qu_c'},
+        {expr: 'K**4 * math.sqrt(3) / pi**3', first_var: 'm_qu_t', second_var: 'm_qu_b'},
+        {expr: '4 * 2**(1/2) * K**3', first_var: 'm_qu_t', second_var: 'm_pi_meson'},
+        {expr: '2 * pi**(5/2) * math.sqrt(K)', first_var: 'm_w_bozon', second_var: 'm_proton_val'},
+        {expr: '1 / (2*(pi) ** (1 / 2))', first_var: 'm_pi_meson', second_var: 'm_k0_meson'},
+        {expr: '4 * (pi ** 2) * K ** (1 / 2)', first_var: 'm_z_bozon', second_var: 'm_proton_val'},
+        {expr: '4 * pi ** (3/2) / (K**3 * 3**(1/2))', first_var: 'm_muon', second_var: 'm_tau'},
+        {expr: '8 * pi ** (3 / 2) * 2 ** (1 / 2) / K**2', first_var: 'm_J_ψ', second_var: 'm_tau'},
+        {expr: '4 * 2 ** (1 / 2)', first_var: 'm_J_ψ', second_var: 'm_eta'},
+        {expr: '12 * pi ** 2 * 3 ** (1 / 2)', first_var: 'm_eta', second_var: 'm_qu_d'},
+        {expr: '18/pi ** (3 / 2)', first_var: 'm_tau', second_var: 'm_eta'},
+        {expr: '8 * pi**4 / math.sqrt(3)', first_var: 'm_eta', second_var: 'm_qu_u'},
+        {expr: '4 * pi**2 / (3 * K)', first_var: 'm_qu_d', second_var: 'm_qu_u'},
+        {expr: '8 * pi ** 4 / 9', first_var: 'm_muon', second_var: 'm_qu_u'},
+        {expr: '2 * K**3 / pi**(5/2)', first_var: 'm_pi0_meson', second_var: 'm_qu_s'},
+        {expr: 'K**(7/2) / 2', first_var: 'm_pi0_meson', second_var: 'm_e_val'},
+        {expr: 'pi ** (5 / 2) * K ** (1 / 2) / 4', first_var: 'm_qu_s', second_var: 'm_e_val'},
+        // Sigma_plus
+        {expr: 'K**(5/2) / (4 * pi**(5/2))', first_var: 'Sigma_plus', second_var: 'm_proton_val'},
+        {expr: 'K / (2*pi)**(1/2)', first_var: 'Sigma_plus', second_var: 'm_k0_meson'},
+        {expr: 'K**2 * 3**(1/2) / (4 * pi**(5/2) * 2**(1/2))', first_var: 'Sigma_plus', second_var: 'm_DT'},
+        {expr: 'K / (4 * math.sqrt(2))', first_var: 'Sigma_plus', second_var: 'm_Λ_barion'},
+        {expr: 'K**2 / (16 * pi**(9/2))', first_var: 'Sigma_plus', second_var: 'm_z_bozon'},
+        {expr: 'K**2 / (8 * pi**5)', first_var: 'Sigma_plus', second_var: 'm_w_bozon'},
+        {expr: 'K**(3/2) / (16 * pi**4)', first_var: 'Sigma_plus', second_var: 'm_Higgs'},
+        {expr: 'K * 2**(1/2) / (4 * pi**2 * 3**(1/2))', first_var: 'Sigma_plus', second_var: 'm_Υ_1S'},
+        {expr: 'K**4 / (8 * pi**4)', first_var: 'Sigma_plus', second_var: 'm_qu_c'},
+        {expr: 'K**2 * 3**(1/2) / (4 * pi**3)', first_var: 'Sigma_plus', second_var: 'm_qu_b'},
+        {expr: '1 / (4 * K**2)', first_var: 'Sigma_plus', second_var: 'm_qu_t'},
+        {expr: 'K * 2**(1/2)', first_var: 'Sigma_plus', second_var: 'm_pi_meson'},
+        {expr: 'K**(5/2) / (4 * pi**(5/2) * 2**(1/2))', first_var: 'Sigma_plus', second_var: 'Ksi_0'},
+        {expr: 'K**(5/2) / (4 * pi**3)', first_var: 'Sigma_plus', second_var: 'omega_minus'},
+        {expr: 'K**2 / (4 * pi**(5/2))', first_var: 'Sigma_plus', second_var: 'Lambda_plus'},
+        {expr: 'K / (4 * pi)', first_var: 'Sigma_plus', second_var: 'Ksi_plus'},
+        {expr: 'pi**(1/2) / 4', first_var: 'Sigma_plus', second_var: 'Omega0_c'},
+        {expr: 'K**(3/2) / (4 * pi**(5/2))', first_var: 'Sigma_plus', second_var: 'lambda_B0'},
+        {expr: '1', first_var: 'Sigma_plus', second_var: 'Sigma_minus'},
+        // Ksi_0
+        {expr: '2**(1/2)', first_var: 'Ksi_0', second_var: 'm_proton_val'},
+        {expr: '4 * pi**2 / K**(3/2)', first_var: 'Ksi_0', second_var: 'm_k0_meson'},
+        {expr: '3**(1/2) / K**(1/2)', first_var: 'Ksi_0', second_var: 'm_DT'},
+        {expr: 'pi**(5/2) / K**(3/2)', first_var: 'Ksi_0', second_var: 'm_Λ_barion'},
+        {expr: '2**(1/2) / (4 * pi**2 * K**(1/2))', first_var: 'Ksi_0', second_var: 'm_z_bozon'},
+        {expr: '1 / (2 * pi**5 * K)**(1/2)', first_var: 'Ksi_0', second_var: 'm_w_bozon'},
+        {expr: '2**(1/2) / (4 * pi**(3/2) * K)', first_var: 'Ksi_0', second_var: 'm_Higgs'},
+        {expr: '2 * pi**(1/2) / (K**(3/2) * 3**(1/2))', first_var: 'Ksi_0', second_var: 'm_Υ_1S'},
+        {expr: 'K**(3/2) / (2**(1/2) * pi**(3/2))', first_var: 'Ksi_0', second_var: 'm_qu_c'},
+        {expr: '6**(1/2) / ((pi*K)**(1/2))', first_var: 'Ksi_0', second_var: 'm_qu_b'},
+        {expr: '2**(1/2) * pi**(5/2) / K**(9/2)', first_var: 'Ksi_0', second_var: 'm_qu_t'},
+        {expr: '8 * pi**(5/2) / K**(3/2)', first_var: 'Ksi_0', second_var: 'm_pi_meson'},
+        {expr: '4 * 2**(1/2) * (pi/K)**(5/2)', first_var: 'Ksi_0', second_var: 'Sigma_plus'},
+        {expr: '2**(1/2) / pi**(1/2)', first_var: 'Ksi_0', second_var: 'omega_minus'},
+        {expr: '2**(1/2) / K**(1/2)', first_var: 'Ksi_0', second_var: 'Lambda_plus'},
+        {expr: 'pi**(3/2) * 2**(1/2) / K**(3/2)', first_var: 'Ksi_0', second_var: 'Ksi_plus'},
+        {expr: '2**(1/2) * pi**3 / K**(5/2)', first_var: 'Ksi_0', second_var: 'Omega0_c'},
+        {expr: '2**(1/2) / K', first_var: 'Ksi_0', second_var: 'lambda_B0'},
+        {expr: '4 * 2**(1/2) * (pi/K)**(5/2)', first_var: 'Ksi_0', second_var: 'Sigma_minus'},
+        // omega_minus
+        {expr: 'pi**(1/2)', first_var: 'omega_minus', second_var: 'm_proton_val'},
+        {expr: '2*2**(1/2) * pi**(5/2) / K**(3/2)', first_var: 'omega_minus', second_var: 'm_k0_meson'},
+        {expr: '(3*pi / (2*K))**(1/2)', first_var: 'omega_minus', second_var: 'm_DT'},
+        {expr: 'pi**3 / (K**(3/2) * 2**(1/2))', first_var: 'omega_minus', second_var: 'm_Λ_barion'},
+        {expr: '1 / (4 * pi**(3/2) * K**(1/2))', first_var: 'omega_minus', second_var: 'm_z_bozon'},
+        {expr: '1 / (2 * pi**2 * K**(1/2))', first_var: 'omega_minus', second_var: 'm_w_bozon'},
+        {expr: '1 / (4 * pi * K)', first_var: 'omega_minus', second_var: 'm_Higgs'},
+        {expr: 'pi * 2**(1/2) / (K**(3/2) * 3**(1/2))', first_var: 'omega_minus', second_var: 'm_Υ_1S'},
+        {expr: 'K**(3/2) / (2 * pi)', first_var: 'omega_minus', second_var: 'm_qu_c'},
+        {expr: '3**(1/2) / K**(1/2)', first_var: 'omega_minus', second_var: 'm_qu_b'},
+        {expr: 'pi**3 / K**(9/2)', first_var: 'omega_minus', second_var: 'm_qu_t'},
+        {expr: '4 * pi**3 * 2**(1/2) / K**(3/2)', first_var: 'omega_minus', second_var: 'm_pi_meson'},
+        {expr: '4 * pi**3 / K**(5/2)', first_var: 'omega_minus', second_var: 'Sigma_plus'},
+        {expr: 'pi**(1/2) / 2**(1/2)', first_var: 'omega_minus', second_var: 'Ksi_0'},
+        {expr: 'pi**(1/2) / K**(1/2)', first_var: 'omega_minus', second_var: 'Lambda_plus'},
+        {expr: 'pi**2 / K**(3/2)', first_var: 'omega_minus', second_var: 'Ksi_plus'},
+        {expr: 'pi**(7/2) / K**(5/2)', first_var: 'omega_minus', second_var: 'Omega0_c'},
+        {expr: 'pi**(1/2) / K', first_var: 'omega_minus', second_var: 'lambda_B0'},
+        {expr: '4 * pi**3 / K**(5/2)', first_var: 'omega_minus', second_var: 'Sigma_minus'},
+        // Lambda_plus
+        {expr: 'K**(1/2)', first_var: 'Lambda_plus', second_var: 'm_proton_val'},
+        {expr: '4 * pi**2 / (K * 2**(1/2))', first_var: 'Lambda_plus', second_var: 'm_k0_meson'},
+        {expr: '3**(1/2) / 2**(1/2)', first_var: 'Lambda_plus', second_var: 'm_DT'},
+        {expr: 'pi**(5/2) / (K * 2**(1/2))', first_var: 'Lambda_plus', second_var: 'm_Λ_barion'},
+        {expr: '1 / (4 * pi**2)', first_var: 'Lambda_plus', second_var: 'm_z_bozon'},
+        {expr: '1 / (2 * pi**(5/2))', first_var: 'Lambda_plus', second_var: 'm_w_bozon'},
+        {expr: '1 / (4 * pi**(3/2) * K**(1/2))', first_var: 'Lambda_plus', second_var: 'm_Higgs'},
+        {expr: 'pi**(1/2) * 2**(1/2) / (K * 3**(1/2))', first_var: 'Lambda_plus', second_var: 'm_Υ_1S'},
+        {expr: 'K**2 / (2 * pi**(3/2))', first_var: 'Lambda_plus', second_var: 'm_qu_c'},
+        {expr: '(3/pi)**(1/2)', first_var: 'Lambda_plus', second_var: 'm_qu_b'},
+        {expr: 'pi**(5/2) / K**4', first_var: 'Lambda_plus', second_var: 'm_qu_t'},
+        {expr: '4 * pi**(5/2) * 2**(1/2) / K', first_var: 'Lambda_plus', second_var: 'm_pi_meson'},
+        {expr: '4 * pi**(5/2) / K**2', first_var: 'Lambda_plus', second_var: 'Sigma_plus'},
+        {expr: 'K**(1/2)/ 2**(1/2)', first_var: 'Lambda_plus', second_var: 'Ksi_0'},
+        {expr: 'K**(1/2) / pi**(1/2)', first_var: 'Lambda_plus', second_var: 'omega_minus'},
+        {expr: 'pi**(3/2) / K', first_var: 'Lambda_plus', second_var: 'Ksi_plus'},
+        {expr: 'pi**3 / K**2', first_var: 'Lambda_plus', second_var: 'Omega0_c'},
+        {expr: '1/K**(1/2)', first_var: 'Lambda_plus', second_var: 'lambda_B0'},
+        {expr: '4 * pi**(5/2) / K**2', first_var: 'Lambda_plus', second_var: 'Sigma_minus'},
+        // Ksi_plus
+        {expr: 'K**(3/2) / pi**(3/2)', first_var: 'Ksi_plus', second_var: 'm_proton_val'},
+        {expr: '4 * pi**(1/2) / 2**(1/2)', first_var: 'Ksi_plus', second_var: 'm_k0_meson'},
+        {expr: 'K * 3**(1/2) / (pi**(3/2) * 2**(1/2))', first_var: 'Ksi_plus', second_var: 'm_DT'},
+        {expr: 'pi / 2**(1/2)', first_var: 'Ksi_plus', second_var: 'm_Λ_barion'},
+        {expr: 'K / (4 * pi**(7/2))', first_var: 'Ksi_plus', second_var: 'm_z_bozon'},
+        {expr: 'K / (2 * pi**4)', first_var: 'Ksi_plus', second_var: 'm_w_bozon'},
+        {expr: 'K**(1/2) / (4 * pi**3)', first_var: 'Ksi_plus', second_var: 'm_Higgs'},
+        {expr: '2**(1/2) / (pi * 3**(1/2))', first_var: 'Ksi_plus', second_var: 'm_Υ_1S'},
+        {expr: 'K**3 / (2 * pi**3)', first_var: 'Ksi_plus', second_var: 'm_qu_c'},
+        {expr: 'K * 3**(1/2) / pi**2', first_var: 'Ksi_plus', second_var: 'm_qu_b'},
+        {expr: 'pi / K**3', first_var: 'Ksi_plus', second_var: 'm_qu_t'},
+        {expr: '4 * pi * 2**(1/2)', first_var: 'Ksi_plus', second_var: 'm_pi_meson'},
+        {expr: '4 * pi / K', first_var: 'Ksi_plus', second_var: 'Sigma_plus'},
+        {expr: 'K**(3/2) / (pi**(3/2) * 2**(1/2))', first_var: 'Ksi_plus', second_var: 'Ksi_0'},
+        {expr: 'K**(3/2) / pi**2', first_var: 'Ksi_plus', second_var: 'omega_minus'},
+        {expr: 'K / pi**(3/2)', first_var: 'Ksi_plus', second_var: 'Lambda_plus'},
+        {expr: 'pi**(3/2) / K', first_var: 'Ksi_plus', second_var: 'Omega0_c'},
+        {expr: 'K**(1/2) / pi**(3/2)', first_var: 'Ksi_plus', second_var: 'lambda_B0'},
+        {expr: '4 * pi / K', first_var: 'Ksi_plus', second_var: 'Sigma_minus'},
+        // Omega0_c
+        {expr: 'K**(5/2) / pi**3', first_var: 'Omega0_c', second_var: 'm_proton_val'},
+        {expr: '4 * K / (pi * 2**(1/2))', first_var: 'Omega0_c', second_var: 'm_k0_meson'},
+        {expr: 'K**2 * 3**(1/2) / (pi**3 * 2**(1/2))', first_var: 'Omega0_c', second_var: 'm_DT'},
+        {expr: 'K / ((2*pi)**(1/2))', first_var: 'Omega0_c', second_var: 'm_Λ_barion'},
+        {expr: 'K**2 / (4 * pi**5)', first_var: 'Omega0_c', second_var: 'm_z_bozon'},
+        {expr: 'K**2 / (2 * pi**(11/2))', first_var: 'Omega0_c', second_var: 'm_w_bozon'},
+        {expr: 'K**(3/2) / (4 * pi**(9/2))', first_var: 'Omega0_c', second_var: 'm_Higgs'},
+        {expr: 'K * 2**(1/2) / (pi**(5/2) * 3**(1/2))', first_var: 'Omega0_c', second_var: 'm_Υ_1S'},
+        {expr: 'K**4 / (2 * pi**(9/2))', first_var: 'Omega0_c', second_var: 'm_qu_c'},
+        {expr: 'K**2 * 3**(1/2) / pi**(7/2)', first_var: 'Omega0_c', second_var: 'm_qu_b'},
+        {expr: '1 / (pi**(1/2) * K**2)', first_var: 'Omega0_c', second_var: 'm_qu_t'},
+        {expr: '4 * 2**(1/2) * K / pi**(1/2)', first_var: 'Omega0_c', second_var: 'm_pi_meson'},
+        {expr: '4 / pi**(1/2)', first_var: 'Omega0_c', second_var: 'Sigma_plus'},
+        {expr: 'K**(5/2) / (pi**3 * 2**(1/2))', first_var: 'Omega0_c', second_var: 'Ksi_0'},
+        {expr: 'K**(5/2) / pi**(7/2)', first_var: 'Omega0_c', second_var: 'omega_minus'},
+        {expr: 'K**2 / pi**3', first_var: 'Omega0_c', second_var: 'Lambda_plus'},
+        {expr: 'K / pi**(3/2)', first_var: 'Omega0_c', second_var: 'Ksi_plus'},
+        {expr: 'K**(3/2) / pi**3', first_var: 'Omega0_c', second_var: 'lambda_B0'},
+        {expr: '4 / pi**(1/2)', first_var: 'Omega0_c', second_var: 'Sigma_minus'},
+        // lambda_B0
+        {expr: 'K', first_var: 'lambda_B0', second_var: 'm_proton_val'},
+        {expr: '4 * pi**2 / (K**(1/2) * 2**(1/2))', first_var: 'lambda_B0', second_var: 'm_k0_meson'},
+        {expr: 'K**(1/2) * 3**(1/2) / 2**(1/2)', first_var: 'lambda_B0', second_var: 'm_DT'},
+        {expr: 'pi**(5/2) / (K**(1/2) * 2**(1/2))', first_var: 'lambda_B0', second_var: 'm_Λ_barion'},
+        {expr: 'K**(1/2) / (4 * pi**2)', first_var: 'lambda_B0', second_var: 'm_z_bozon'},
+        {expr: 'K**(1/2) / (2 * pi**(5/2))', first_var: 'lambda_B0', second_var: 'm_w_bozon'},
+        {expr: '1 / (4 * pi**(3/2))', first_var: 'lambda_B0', second_var: 'm_Higgs'},
+        {expr: 'pi**(1/2) * 2**(1/2) / (K**(1/2) * 3**(1/2))', first_var: 'lambda_B0', second_var: 'm_Υ_1S'},
+        {expr: 'K**(5/2) / (2 * pi**(3/2))', first_var: 'lambda_B0', second_var: 'm_qu_c'},
+        {expr: 'K**(1/2) * 3**(1/2) / pi**(1/2)', first_var: 'lambda_B0', second_var: 'm_qu_b'},
+        {expr: 'pi**(5/2) / K**(7/2)', first_var: 'lambda_B0', second_var: 'm_qu_t'},
+        {expr: '4 * pi**(5/2) * 2**(1/2) / K**(1/2)', first_var: 'lambda_B0', second_var: 'm_pi_meson'},
+        {expr: '4 * pi**(5/2) / K**(3/2)', first_var: 'lambda_B0', second_var: 'Sigma_plus'},
+        {expr: 'K / 2**(1/2)', first_var: 'lambda_B0', second_var: 'Ksi_0'},
+        {expr: 'K / pi**(1/2)', first_var: 'lambda_B0', second_var: 'omega_minus'},
+        {expr: 'K**(1/2)', first_var: 'lambda_B0', second_var: 'Lambda_plus'},
+        {expr: 'pi**(3/2) / K**(1/2)', first_var: 'lambda_B0', second_var: 'Ksi_plus'},
+        {expr: 'pi**3 / K**(3/2)', first_var: 'lambda_B0', second_var: 'Omega0_c'},
+        {expr: '4 * pi**(5/2) / K**(3/2)', first_var: 'lambda_B0', second_var: 'Sigma_minus'},
+        // phi_meson
+        {expr: 'K**(5/2) * 3**(1/2) * 2**(1/2) / (4 * pi**(3/2))', first_var: 'phi_meson', second_var: 'm_muon'},
+        {expr: '(2/K)**(1/2)', first_var: 'phi_meson', second_var: 'm_tau'},
+        {expr: 'K**(3/2) / (8 * pi**(3/2))', first_var: 'phi_meson', second_var: 'm_J_ψ'},
+        {expr: '2**(1/2) * K**(3/2) / (2 * pi**(3/2))', first_var: 'phi_meson', second_var: 'm_eta'},
+        {expr: '4 * K**(3/2) * pi**(5/2) * 2**(1/2) / 3**(1/2)', first_var: 'phi_meson', second_var: 'm_qu_u'},
+        {expr: 'K**(5/2) * 3**(1/2) * (2*pi)**(1/2)', first_var: 'phi_meson', second_var: 'm_qu_d'},
+        {expr: 'K**(3/2) / (2 * pi**(3/2))', first_var: 'phi_meson', second_var: 'omega_meson'},
+        {expr: '2 * 2**(1/2) * pi **(3/2) / K**(3/2)', first_var: 'phi_meson', second_var: 'eta_shtrih'},
+        // omega_meson
+        {expr: 'K * (3/2)**(1/2)', first_var: 'omega_meson', second_var: 'm_muon'},
+        {expr: '2 * pi**(3/2) * 2**(1/2) / K**2', first_var: 'omega_meson', second_var: 'm_tau'},
+        {expr: '1/4', first_var: 'omega_meson', second_var: 'm_J_ψ'},
+        {expr: '2**(1/2)', first_var: 'omega_meson', second_var: 'm_eta'},
+        {expr: '8 * pi**4 * 2**(1/2) / 3**(1/2)', first_var: 'omega_meson', second_var: 'm_qu_u'},
+        {expr: '2 * K * pi**2 * 2**(1/2) * 3**(1/2)', first_var: 'omega_meson', second_var: 'm_qu_d'},
+        {expr: '2 * (pi/K)**(3/2)', first_var: 'omega_meson', second_var: 'phi_meson'},
+        {expr: '4 * pi**3 * 2**(1/2) / K**3', first_var: 'omega_meson', second_var: 'eta_shtrih'},
+        // eta_shtrih
+        {expr: 'K**4 * 3**(1/2) / (8 * pi**3)', first_var: 'eta_shtrih', second_var: 'm_muon'},
+        {expr: 'K / (2 * pi**(3/2))', first_var: 'eta_shtrih', second_var: 'm_tau'},
+        {expr: 'K**3 / (16 * pi**3 * 2**(1/2))', first_var: 'eta_shtrih', second_var: 'm_J_ψ'},
+        {expr: 'K**3 / (4 * pi**3)', first_var: 'eta_shtrih', second_var: 'm_eta'},
+        {expr: '2 * K**3 * pi / 3**(1/2)', first_var: 'eta_shtrih', second_var: 'm_qu_u'},
+        {expr: 'K**4 * 3**(1/2) / (2 * pi)', first_var: 'eta_shtrih', second_var: 'm_qu_d'},
+        {expr: 'K**(3/2) / (2 * pi **(3/2) * 2**(1/2))', first_var: 'eta_shtrih', second_var: 'phi_meson'},
+        {expr: 'K**3 / (4 * pi**3 * 2**(1/2))', first_var: 'eta_shtrih', second_var: 'omega_meson'},
+        {expr: 'lnN**1 3**(1 / 2) / (4 * pi**(11/2))', first_var: 'm_qu_u', second_var: 'm_qu_s'},
+        {expr: 'lnN**(-1) (4 * pi**(11/2)) /  3**(1 / 2) ', first_var: 'm_qu_s', second_var: 'm_qu_u'},
+        {expr: 'lnN**(-1) K * 3 ** (1 / 2) * pi ** (7 / 2)', first_var: 'm_qu_s', second_var: 'm_qu_d'},
+        {expr: 'lnN**1  1 / (K * 3 ** (1 / 2) * pi ** (7 / 2))', first_var: 'm_qu_d', second_var: 'm_qu_s'},
+        {expr: 'lnN**1 pi / (3 * K) ** (1 / 2)', first_var: 'm_muon', second_var: 'm_e_val'},
+        {expr: 'lnN**(-1)  (3 * K) ** (1 / 2) / pi', first_var: 'm_e_val', second_var: 'm_muon'},
+
+        //m_e_val = 4 * pi * lnN ** 4 / (K ** (1 / 2) * N ** (1 / 3))
+
+        {expr: 'lnN**(-1) 16 * pi**3 / (K**(1/2) * 3**(1/2))', first_var: 'm_e_val', second_var: 'm_qu_u'},
+        {expr: 'lnN**1 K**(1/2) * 3**(1/2) / (16 * pi**3)', first_var: 'm_qu_u', second_var: 'm_e_val'},
+        {expr: 'lnN**(-1) 4 * pi * K**(1/2) * 3**(1/2)', first_var: 'm_e_val', second_var: 'm_qu_d'},
+        {expr: 'lnN**1 1 / (4 * pi * K**(1/2) * 3**(1/2))', first_var: 'm_qu_d', second_var: 'm_e_val'},
+
+        {expr: 'lnN**(-1) 8 * pi**3 * K**3 / 3**(1/2)', first_var: 'm_pi0_meson', second_var: 'm_qu_u'},
+        {expr: 'lnN**1 3**(1/2) / (8 * pi**3 * K**3)', first_var: 'm_qu_u', second_var: 'm_pi0_meson'},
+
+        {expr: 'lnN**(-2) 2 * pi**3', first_var: 'm_pi0_meson', second_var: 'm_qu_t'},
+        {expr: 'lnN**2 1 / (2 * pi**3)', first_var: 'm_qu_t', second_var: 'm_pi0_meson'},
+
+        {expr: 'lnN**(-1) 2 * pi * K**4 * 3**(1/2)', first_var: 'm_pi0_meson', second_var: 'm_qu_d'},
+        {expr: 'lnN**1 1 / (2 * pi * K**4 * 3**(1/2))', first_var: 'm_qu_d', second_var: 'm_pi0_meson'},
+
+        {expr: 'lnN**2 K**(1/2) / (16 * pi**3 * 2**(1/2))', first_var: 'm_pi_meson', second_var: 'm_e_val'},
+        {expr: 'lnN**(-2) 16 * pi**3 * 2**(1/2) / K**(1/2)', first_var: 'm_e_val', second_var: 'm_pi_meson'},
+
+        {expr: 'lnN**1 1 / (2**(1/2) * 3**(1/2))', first_var: 'm_pi_meson', second_var: 'm_qu_u'},
+        {expr: 'lnN**(-1) 2**(1/2) * 3**(1/2)', first_var: 'm_qu_u', second_var: 'm_pi_meson'},
+
+        {expr: 'lnN**2 1 / (4 * pi**(11/2) * 2**(1/2))', first_var: 'm_pi_meson', second_var: 'm_qu_s'},
+        {expr: 'lnN**(-2) 4 * pi**(11/2) * 2**(1/2)', first_var: 'm_qu_s', second_var: 'm_pi_meson'},
+        {expr: 'lnN**1 K * 3**(1/2) / (4 * pi**2 * 2**(1/2))', first_var: 'm_pi_meson', second_var: 'm_qu_d'},
+        {expr: 'lnN**(-1) 4 * pi**2 * 2**(1/2) / (K * 3**(1/2))', first_var: 'm_qu_d', second_var: 'm_pi_meson'},
+
+        {expr: 'lnN**(-1) pi**(7/2) * K * 3**(1/2) / (4 * pi**2)', first_var: 'm_qu_s', second_var: 'm_muon'},
+        {expr: 'lnN**1 4 * pi**2 / (pi**(7/2) * K * 3**(1/2))', first_var: 'm_muon', second_var: 'm_qu_s'},
+
+        {expr: 'lnN**(-2) 16 * pi**3 / (K**(1/2) * (2*pi)**(1/2))', first_var: 'm_e_val', second_var: 'm_k0_meson'},
+        {expr: 'lnN**2 K**(1/2) * (2*pi)**(1/2) / (16 * pi**3)', first_var: 'm_k0_meson', second_var: 'm_e_val'},
+
+        {expr: 'lnN**(-1) 2 / (K**(1/2) * pi)', first_var: 'm_e_val', second_var: 'm_eta'},
+        {expr: 'lnN**1 K**(1/2) * pi / 2', first_var: 'm_eta', second_var: 'm_e_val'},
+
+        {expr: 'lnN**1 K * 3**(1/2) / (16 * pi**4 * 2**(1/2))', first_var: 'm_pi_meson', second_var: 'm_muon'},
+        {expr: 'lnN**(-1) 16 * pi**4 * 2**(1/2) / (K * 3**(1/2))', first_var: 'm_muon', second_var: 'm_pi_meson'},
+
+        {expr: 'lnN**(-1) K**4 * 3**(1/2) / (2 * pi)', first_var: 'm_pi0_meson', second_var: 'm_muon'},
+        {expr: 'lnN**1 2 * pi / (K**4 * 3**(1/2))', first_var: 'm_muon', second_var: 'm_pi0_meson'},
+
+        {expr: '3**(1/2) / (32 * pi**4 * 2**(1/2))', first_var: 'm_qu_u', second_var: 'm_J_ψ'},
+        {expr: '32 * pi**4 * 2**(1/2) / 3**(1/2)', first_var: 'm_J_ψ', second_var: 'm_qu_u'},
+
+        {expr: '3**(1/2) / (4 * pi**(5/2) * K**2)', first_var: 'm_qu_u', second_var: 'm_tau'},
+        {expr: '4 * pi**(5/2) * K**2 / 3**(1/2)', first_var: 'm_tau', second_var: 'm_qu_u'},
+
+        {expr: '2 * K * 2**(1/2) * 3**(1/2)', first_var: 'm_J_ψ', second_var: 'm_muon'},
+        {expr: '1 / (2 * K * 2**(1/2) * 3**(1/2))', first_var: 'm_muon', second_var: 'm_J_ψ'},
+
+        {expr: 'K**3 / (8 * pi**4 * 2**(1/2))', first_var: 'm_pi_meson', second_var: 'm_qu_c'},
+        {expr: '8 * pi**4 * 2**(1/2) / K**3', first_var: 'm_qu_c', second_var: 'm_pi_meson'},
+
+        {expr: '4 * pi**(5/2) * 2**(1/2) / K**(3/2)', first_var: 'm_proton_val', second_var: 'm_pi_meson'},
+        {expr: 'K**(3/2) / (4 * pi**(5/2) * 2**(1/2))', first_var: 'm_pi_meson', second_var: 'm_proton_val'},
+
+        {expr: 'K * 2**(1/2)', first_var: 'Sigma_minus', second_var: 'm_pi_meson'},
+        {expr: '1 / (K * 2**(1/2))', first_var: 'm_pi_meson', second_var: 'Sigma_minus'},
+
+        {expr: '8', first_var: 'm_Λ_barion', second_var: 'm_pi_meson'},
+        {expr: '1/8', first_var: 'm_pi_meson', second_var: 'm_Λ_barion'},
+
+        {expr: 'K**3 * (2*pi)**(1/2) / (8 * pi**4)', first_var: 'm_k0_meson', second_var: 'm_qu_c'},
+        {expr: '8 * pi**4 / (K**3 * (2*pi)**(1/2))', first_var: 'm_qu_c', second_var: 'm_k0_meson'},
+
+        {expr: 'K**(3/2) * (2*pi)**(1/2) / (4 * pi**(5/2))', first_var: 'm_k0_meson', second_var: 'm_proton_val'},
+        {expr: '4 * pi**(5/2) / (K**(3/2) * (2*pi)**(1/2))', first_var: 'm_proton_val', second_var: 'm_k0_meson'},
+
+        {expr: 'K / (2*pi)**(1/2)', first_var: 'Sigma_minus', second_var: 'm_k0_meson'},
+        {expr: '(2*pi)**(1/2) / K', first_var: 'm_k0_meson', second_var: 'Sigma_minus'},
+
+        {expr: 'K**3 * 2**(1/2) / (2 * pi**4)', first_var: 'm_Λ_barion', second_var: 'm_qu_c'},
+        {expr: '2 * pi**4 / (K**3 * 2**(1/2))', first_var: 'm_qu_c', second_var: 'm_Λ_barion'},
+
+        {expr: 'K**(3/2) * 2**(1/2) / pi**(5/2)', first_var: 'm_Λ_barion', second_var: 'm_proton_val'},
+        {expr: 'pi**(5/2) / (K**(3/2) * 2**(1/2))', first_var: 'm_proton_val', second_var: 'm_Λ_barion'},
+
+        {expr: 'K**4 / (8 * pi**4)', first_var: 'Sigma_minus', second_var: 'm_qu_c'},
+        {expr: '8 * pi**4 / K**4', first_var: 'm_qu_c', second_var: 'Sigma_minus'},
+
+        {expr: 'K**(5/2) / (4 * pi**(5/2))', first_var: 'Sigma_minus', second_var: 'm_proton_val'},
+        {expr: 'K / (2*pi)**(1/2)', first_var: 'Sigma_minus', second_var: 'm_k0_meson'},
+        {expr: 'K**2 * 3**(1/2) / (4 * pi**(5/2) * 2**(1/2))', first_var: 'Sigma_minus', second_var: 'm_DT'},
+        {expr: 'K / (4 * math.sqrt(2))', first_var: 'Sigma_minus', second_var: 'm_Λ_barion'},
+        {expr: 'K**2 / (16 * pi**(9/2))', first_var: 'Sigma_minus', second_var: 'm_z_bozon'},
+        {expr: 'K**2 / (8 * pi**5)', first_var: 'Sigma_minus', second_var: 'm_w_bozon'},
+        {expr: 'K**(3/2) / (16 * pi**4)', first_var: 'Sigma_minus', second_var: 'm_Higgs'},
+        {expr: 'K * 2**(1/2) / (4 * pi**2 * 3**(1/2))', first_var: 'Sigma_minus', second_var: 'm_Υ_1S'},
+        {expr: 'K**4 / (8 * pi**4)', first_var: 'Sigma_minus', second_var: 'm_qu_c'},
+        {expr: 'K**2 * 3**(1/2) / (4 * pi**3)', first_var: 'Sigma_minus', second_var: 'm_qu_b'},
+        {expr: '1 / (4 * K**2)', first_var: 'Sigma_minus', second_var: 'm_qu_t'},
+        {expr: 'K * 2**(1/2)', first_var: 'Sigma_minus', second_var: 'm_pi_meson'},
+        {expr: 'K**(5/2) / (4 * pi**(5/2) * 2**(1/2))', first_var: 'Sigma_minus', second_var: 'Ksi_0'},
+        {expr: 'K**(5/2) / (4 * pi**3)', first_var: 'Sigma_minus', second_var: 'omega_minus'},
+        {expr: 'K**2 / (4 * pi**(5/2))', first_var: 'Sigma_minus', second_var: 'Lambda_plus'},
+        {expr: 'K / (4 * pi)', first_var: 'Sigma_minus', second_var: 'Ksi_plus'},
+        {expr: 'pi**(1/2) / 4', first_var: 'Sigma_minus', second_var: 'Omega0_c'},
+        {expr: 'K**(3/2) / (4 * pi**(5/2))', first_var: 'Sigma_minus', second_var: 'lambda_B0'},
+        {expr: '1', first_var: 'Sigma_minus', second_var: 'Sigma_minus'},
+
+        {expr: '8 * pi**(5/2) / (K * 3**(1/2))', first_var: 'm_DT', second_var: 'm_pi_meson'},
+        {expr: 'K * 3**(1/2) / (8 * pi**(5/2))', first_var: 'm_pi_meson', second_var: 'm_DT'},
+
+        {expr: 'K**2 * (2*pi)**(1/2) / (2 * 3**(1/2) * pi**2)', first_var: 'm_DT', second_var: 'm_qu_c'},
+        {expr: '2 * 3**(1/2) * pi**2 / (K**2 * (2*pi)**(1/2))', first_var: 'm_qu_c', second_var: 'm_DT'},
+
+        {expr: 'K * 3**(1/2) / (4 * pi**3 * 2**(1/2))', first_var: 'm_pi_meson', second_var: 'm_qu_b'},
+        {expr: '4 * pi**3 * 2**(1/2) / (K * 3**(1/2))', first_var: 'm_qu_b', second_var: 'm_pi_meson'},
+
+        {expr: 'K * 3**(1/2) * (2*pi)**(1/2) / (4 * pi**3)', first_var: 'm_k0_meson', second_var: 'm_qu_b'},
+        {expr: '4 * pi**3 / (K * 3**(1/2) * (2*pi)**(1/2))', first_var: 'm_qu_b', second_var: 'm_k0_meson'},
+
+        {expr: '4 * pi**2 * 3**(1/2)', first_var: 'm_Υ_1S', second_var: 'm_pi_meson'},
+        {expr: '1 / (4 * pi**2 * 3**(1/2))', first_var: 'm_pi_meson', second_var: 'm_Υ_1S'},
+
+        {expr: '2 * pi**(3/2) * 3**(1/2)', first_var: 'm_Υ_1S', second_var: 'm_k0_meson'},
+        {expr: '1 / (2 * pi**(3/2) * 3**(1/2))', first_var: 'm_k0_meson', second_var: 'm_Υ_1S'},
+
+        {expr: 'K / (8 * pi**5 * 2**(1/2))', first_var: 'm_pi_meson', second_var: 'm_w_bozon'},
+        {expr: '8 * pi**5 * 2**(1/2) / K', first_var: 'm_w_bozon', second_var: 'm_pi_meson'},
+
+        {expr: 'K * 2**(1/2) * 3**(1/2) / pi**3', first_var: 'm_Λ_barion', second_var: 'm_qu_b'},
+        {expr: 'pi**3 / (K * 2**(1/2) * 3**(1/2))', first_var: 'm_qu_b', second_var: 'm_Λ_barion'},
+
+        {expr: '2 / (pi**2 * 3**(1/2))', first_var: 'm_Λ_barion', second_var: 'm_Υ_1S'},
+        {expr: 'pi**2 * 3**(1/2) / 2', first_var: 'm_Υ_1S', second_var: 'm_Λ_barion'},
+
+        {expr: 'K * (2*pi)**(1/2) / (8 * pi**5)', first_var: 'm_k0_meson', second_var: 'm_w_bozon'},
+        {expr: '8 * pi**5 / (K * (2*pi)**(1/2))', first_var: 'm_w_bozon', second_var: 'm_k0_meson'},
+
+        {expr: '1 / (K**2 * pi)', first_var: 'm_qu_c', second_var: 'm_w_bozon'},
+        {expr: 'K**2 * pi', first_var: 'm_w_bozon', second_var: 'm_qu_c'},
+
+        {expr: 'K * 2**(1/2) / (2 * pi**5)', first_var: 'm_Λ_barion', second_var: 'm_w_bozon'},
+        {expr: '2 * pi**5 / (K * 2**(1/2))', first_var: 'm_w_bozon', second_var: 'm_Λ_barion'},
+
+        {expr: '1 / (2 * K**2 * pi**(1/2))', first_var: 'm_qu_c', second_var: 'm_z_bozon'},
+        {expr: '2 * K**2 * pi**(1/2)', first_var: 'm_z_bozon', second_var: 'm_qu_c'},
+
+        {expr: 'K * 2**(1/2) / (16 * pi**4)', first_var: 'm_k0_meson', second_var: 'm_z_bozon'},
+        {expr: '16 * pi**4 / (K * 2**(1/2))', first_var: 'm_z_bozon', second_var: 'm_k0_meson'},
+
+        {expr: 'K / (16 * pi**(9/2) * 2**(1/2))', first_var: 'm_pi_meson', second_var: 'm_z_bozon'},
+        {expr: '16 * pi**(9/2) * 2**(1/2) / K', first_var: 'm_z_bozon', second_var: 'm_pi_meson'},
+
+        {expr: 'K**(1/2) * 2**(1/2) / (4 * pi**4)', first_var: 'm_Λ_barion', second_var: 'm_Higgs'},
+        {expr: '4 * pi**4 / (K**(1/2) * 2**(1/2))', first_var: 'm_Higgs', second_var: 'm_Λ_barion'},
+
+        {expr: '1 / (4 * K * pi**(3/2))', first_var: 'm_proton_val', second_var: 'm_Higgs'},
+        {expr: '4 * K * pi**(3/2)', first_var: 'm_Higgs', second_var: 'm_proton_val'},
+
+        {expr: '1 / (2 * K**(5/2))', first_var: 'm_qu_c', second_var: 'm_Higgs'},
+        {expr: '2 * K**(5/2)', first_var: 'm_Higgs', second_var: 'm_qu_c'},
+
+        {expr: 'K**(1/2) * 2**(1/2) / (16 * pi**(7/2))', first_var: 'm_k0_meson', second_var: 'm_Higgs'},
+        {expr: '16 * pi**(7/2) / (K**(1/2) * 2**(1/2))', first_var: 'm_Higgs', second_var: 'm_k0_meson'},
+
+        {expr: 'K**(1/2) / (16 * pi**4 * 2**(1/2))', first_var: 'm_pi_meson', second_var: 'm_Higgs'},
+        {expr: '16 * pi**4 * 2**(1/2) / K**(1/2)', first_var: 'm_Higgs', second_var: 'm_pi_meson'},
+
+        {expr: '(2*pi)**(1/2) / (4 * K**3)', first_var: 'm_k0_meson', second_var: 'm_qu_t'},
+        {expr: '4 * K**3 / (2*pi)**(1/2)', first_var: 'm_qu_t', second_var: 'm_k0_meson'},
+
+        {expr: 'pi**(5/2) / K**(9/2)', first_var: 'm_proton_val', second_var: 'm_qu_t'},
+        {expr: 'K**(9/2) / pi**(5/2)', first_var: 'm_qu_t', second_var: 'm_proton_val'},
+
+        {expr: '2**(1/2) / K**3', first_var: 'm_Λ_barion', second_var: 'm_qu_t'},
+        {expr: 'K**3 / 2**(1/2)', first_var: 'm_qu_t', second_var: 'm_Λ_barion'},
+
+        {expr: '(pi/2)**(1/2)', first_var: 'm_qu_b', second_var: 'm_DT'},
+        {expr: '(2/pi)**(1/2)', first_var: 'm_DT', second_var: 'm_qu_b'},
+
+        {expr: 'K * 3 / (2**(1/2) * pi)', first_var: 'm_Υ_1S', second_var: 'm_qu_b'},
+        {expr: '2**(1/2) * pi / (K * 3)', first_var: 'm_qu_b', second_var: 'm_Υ_1S'},
+
+        {expr: 'K * 3 / (2 * pi**(1/2))', first_var: 'm_Υ_1S', second_var: 'm_DT'},
+        {expr: '2 * pi**(1/2) / (K * 3)', first_var: 'm_DT', second_var: 'm_Υ_1S'},
+
+        {expr: '(2*pi)**(1/2) / (2 * 3**(1/2) * pi**3)', first_var: 'm_DT', second_var: 'm_w_bozon'},
+        {expr: '2 * 3**(1/2) * pi**3 / (2*pi)**(1/2)', first_var: 'm_w_bozon', second_var: 'm_DT'},
+
+        {expr: '2**(1/2) / (4 * 3**(1/2) * pi**2)', first_var: 'm_DT', second_var: 'm_z_bozon'},
+        {expr: '4 * 3**(1/2) * pi**2 / 2**(1/2)', first_var: 'm_z_bozon', second_var: 'm_DT'},
+
+        {expr: '4 * K**(1/2) * 3**(1/2) * pi**(3/2) / 2**(1/2)', first_var: 'm_Higgs', second_var: 'm_DT'},
+        {expr: '2**(1/2) / (4 * K**(1/2) * 3**(1/2) * pi**(3/2))', first_var: 'm_DT', second_var: 'm_Higgs'},
+
+        {expr: '4 * pi**4 / K**(7/2)', first_var: 'm_Higgs', second_var: 'm_qu_t'},
+        {expr: 'K**(7/2) / (4 * pi**4)', first_var: 'm_qu_t', second_var: 'm_Higgs'},
+
+        {expr: 'K**4 * 3**(1/2) / (2**(1/2) * pi**(5/2))', first_var: 'm_qu_t', second_var: 'm_DT'},
+        {expr: '2**(1/2) * pi**(5/2) / (K**4 * 3**(1/2))', first_var: 'm_DT', second_var: 'm_qu_t'},
+
+        {expr: '2 * pi**2 * 3**(1/2)', first_var: 'm_w_bozon', second_var: 'm_qu_b'},
+        {expr: '1 / (2 * pi**2 * 3**(1/2))', first_var: 'm_qu_b', second_var: 'm_w_bozon'},
+
+        {expr: '4 * pi**(3/2) * 3**(1/2)', first_var: 'm_z_bozon', second_var: 'm_qu_b'},
+        {expr: '1 / (4 * pi**(3/2) * 3**(1/2))', first_var: 'm_qu_b', second_var: 'm_z_bozon'},
+
+        {expr: '4 * pi * K**(1/2) * 3**(1/2)', first_var: 'm_Higgs', second_var: 'm_qu_b'},
+        {expr: '1 / (4 * pi * K**(1/2) * 3**(1/2))', first_var: 'm_qu_b', second_var: 'm_Higgs'},
+
+        {expr: 'K * 3**(1/2) / (2**(3/2) * pi**3)', first_var: 'm_Υ_1S', second_var: 'm_w_bozon'},
+        {expr: '2**(3/2) * pi**3 / (K * 3**(1/2))', first_var: 'm_w_bozon', second_var: 'm_Υ_1S'},
+
+        {expr: 'K * 3**(1/2) / (4 * 2**(1/2) * pi**(5/2))', first_var: 'm_Υ_1S', second_var: 'm_z_bozon'},
+        {expr: '4 * 2**(1/2) * pi**(5/2) / (K * 3**(1/2))', first_var: 'm_z_bozon', second_var: 'm_Υ_1S'},
+
+        {expr: 'K**(1/2) * 3**(1/2) / (4 * 2**(1/2) * pi**2)', first_var: 'm_Υ_1S', second_var: 'm_Higgs'},
+        {expr: '4 * 2**(1/2) * pi**2 / (K**(1/2) * 3**(1/2))', first_var: 'm_Higgs', second_var: 'm_Υ_1S'},
+
+        {expr: 'pi**2 * 3**(1/2) / (2**(1/2) * K**3)', first_var: 'm_Υ_1S', second_var: 'm_qu_t'},
+        {expr: '2**(1/2) * K**3 / (pi**2 * 3**(1/2))', first_var: 'm_qu_t', second_var: 'm_Υ_1S'},
+
+        {expr: '2 * pi**5 / K**4', first_var: 'm_w_bozon', second_var: 'm_qu_t'},
+        {expr: 'K**4 / (2 * pi**5)', first_var: 'm_qu_t', second_var: 'm_w_bozon'},
+
+        {expr: '(pi / K) ** (1/2)', first_var: 'm_z_bozon', second_var: 'm_Higgs'},
+
+        {expr: 'K**4 / (4 * pi**(9/2))', first_var: 'm_qu_t', second_var: 'm_z_bozon'},
+        {expr: '4 * pi**(9/2) / K**4', first_var: 'm_z_bozon', second_var: 'm_qu_t'},
+
+
+    ];
+
+    const relations = {};
+    rawRelations.forEach(r => {
+        try {
+            let evalExpr = r.expr
+                // Сначала заменяем конструкции с lnN
+                .replace(/lnN\*\*1/g, 'lnN')
+                .replace(/lnN\*\*\(-1\)/g, '(1/lnN)')
+                // Добавляем явное умножение ВЕЗДЕ где есть пробел
+                .replace(/(\d)\s+(\d)/g, '$1*$2')
+                .replace(/(\d)\s+\(/g, '$1*(')
+                .replace(/\)\s+(\d)/g, ')*$1')
+                .replace(/\)\s+\(/g, ')*(')
+                .replace(/(\d)\s+([a-zA-Z])/g, '$1*$2')
+                .replace(/\)\s+([a-zA-Z])/g, ')*$1')
+                .replace(/([a-zA-Z])\s+(\d)/g, '$1*$2')
+                .replace(/([a-zA-Z])\s+\(/g, '$1*(')
+                .replace(/([a-zA-Z])\s+([a-zA-Z])/g, '$1*$2')
+                // Теперь математические замены
+                .replace(/math\.sqrt\(([^)]+)\)/g, 'Math.sqrt($1)')
+                .replace(/lnN/g, '(' + lnN + ')')
+                .replace(/pi/g, '(' + pi + ')')
+                .replace(/K/g, '(' + K + ')');
+
+            const val = eval(evalExpr);
+
+            if (!relations[r.first_var]) relations[r.first_var] = {};
+            relations[r.first_var][r.second_var] = {expr: r.expr, value: val};
+        } catch (e) {
+            console.error('Cannot evaluate:', r.expr, '->', e.message);
+        }
+    });
+
+    function invertExpr(expr) {
+        // Если выражение содержит " / " — меняем числитель и знаменатель
+        if (expr.includes(' / ')) {
+            const parts = expr.split(' / ');
+            if (parts.length === 2) {
+                return parts[1] + ' / ' + parts[0];
+            }
+        }
+        // Если это простая дробь без знака деления — оборачиваем в 1/(...)
+        return '1 / (' + expr + ')';
+    }
+
+    function getModelRatio(id1, id2) {
+        if (relations[id1] && relations[id1][id2]) {
+            return {...relations[id1][id2], inverted: false};
+        }
+        if (relations[id2] && relations[id2][id1]) {
+            return {
+                expr: invertExpr(relations[id2][id1].expr),
+                value: 1 / relations[id2][id1].value,
+                inverted: true
+            };
+        }
+        return null;
+    }
+
+    function formatMass(m) {
+        if (m >= 1e-25) return (m * 1e27).toPrecision(4) + '·10⁻²⁷';
+        if (m >= 1e-26) return (m * 1e27).toPrecision(4) + '·10⁻²⁷';
+        if (m >= 1e-27) return (m * 1e27).toPrecision(4) + '·10⁻²⁷';
+        if (m >= 1e-28) return (m * 1e28).toPrecision(4) + '·10⁻²⁸';
+        if (m >= 1e-29) return (m * 1e29).toPrecision(4) + '·10⁻²⁹';
+        if (m >= 1e-30) return (m * 1e30).toPrecision(4) + '·10⁻³⁰';
+        return (m * 1e31).toPrecision(4) + '·10⁻³¹';
+    }
+
+    let currentFilter = 0;
+    let filteredParticles = [...particles];
+
+    function filterByLn(ln) {
+        currentFilter = ln;
+        document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+        if (ln === 0) document.getElementById('btn-all').classList.add('active');
+        else if (ln === 4) document.getElementById('btn-ln4').classList.add('active');
+        else if (ln === 5) document.getElementById('btn-ln5').classList.add('active');
+        else if (ln === 6) document.getElementById('btn-ln6').classList.add('active');
+        filterTable();
+    }
+
+    function filterTable() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        filteredParticles = particles.filter(p => {
+            const matchLn = currentFilter === 0 || p.ln === currentFilter;
+            const matchSearch = !query || p.name.toLowerCase().includes(query) || p.id.toLowerCase().includes(query);
+            return matchLn && matchSearch;
+        });
+        buildTable();
+        buildStats();
+    }
+
+    function buildTable() {
+        const container = document.getElementById('tableContainer');
+        const pList = filteredParticles;
+
+        let html = '<table><thead><tr><th class="corner">Частица ↓ / Частица →</th>';
+
+        pList.forEach(p => {
+            const lnClass = 'ln' + p.ln;
+            html += `<th class="${lnClass}" title="${p.type} | lnN^${p.ln}">
+                    ${p.name}<br><small>${formatMass(p.mass)} кг</small><br><small>${p.type}</small>
+                </th>`;
+        });
+        html += '</tr></thead><tbody>';
+
+        pList.forEach((p1, i) => {
+            const lnClass1 = 'ln' + p1.ln;
+            html += `<tr class="row-${lnClass1}">`;
+            html += `<td class="${lnClass1}" title="${p1.type} | lnN^${p1.ln}">
+                    ${p1.name}<br><small>${formatMass(p1.mass)} кг</small><br><small>${p1.type}</small>
+                </td>`;
+
+            pList.forEach((p2, j) => {
+                if (i === j) {
+                    html += `<td class="diagonal"><strong>1</strong></td>`;
+                } else {
+                    const rel = getModelRatio(p1.id, p2.id);
+                    if (rel) {
+                        const modelVal = rel.value;
+                        const expVal = p1.mass / p2.mass;
+                        const teta = modelVal / expVal;
+                        const tetaClass = Math.abs(teta - 1) < 0.01 ? 'teta-good' :
+                            Math.abs(teta - 1) < 0.05 ? 'teta-ok' : 'teta-bad';
+                        const latex = toLatex(rel.expr);
+
+                        html += `<td>
+                                <div class="cell-content">
+                                    <span class="cell-formula">\\(${latex}\\)</span>
+                                    <span class="cell-model">М: ${modelVal.toExponential(4)}</span>
+                                    <span class="cell-exp">Э: ${expVal.toExponential(4)}</span>
+                                    <span class="cell-teta ${tetaClass}">T: ${teta.toFixed(4)}</span>
+                                </div>
+                            </td>`;
+                    } else {
+                        html += `<td class="no-data">—</td>`;
+                    }
+                }
+            });
+            html += '</tr>';
+        });
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+
+        MathJax.typesetPromise([container]).catch(console.warn);
+    }
+
+    function buildStats() {
+        const grid = document.getElementById('statsGrid');
+        const allTetas = [];
+
+        filteredParticles.forEach((p1, i) => {
+            filteredParticles.forEach((p2, j) => {
+                if (i !== j) {
+                    const rel = getModelRatio(p1.id, p2.id);
+                    if (rel) {
+                        const expVal = p1.mass / p2.mass;
+                        allTetas.push(rel.value / expVal);
+                    }
+                }
+            });
+        });
+
+        if (allTetas.length === 0) {
+            grid.innerHTML = '<div class="stat-item"><div class="stat-label">Нет данных</div><div class="stat-value">—</div></div>';
+            return;
+        }
+
+        const count = allTetas.length;
+        const avg = allTetas.reduce((a, b) => a + b, 0) / count;
+        const min = Math.min(...allTetas);
+        const max = Math.max(...allTetas);
+        const in1pct = allTetas.filter(t => Math.abs(t - 1) < 0.01).length;
+        const in5pct = allTetas.filter(t => Math.abs(t - 1) < 0.05).length;
+        const in10pct = allTetas.filter(t => Math.abs(t - 1) < 0.10).length;
+
+        grid.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-label">Всего отношений</div>
+                    <div class="stat-value">${count}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Среднее Teta</div>
+                    <div class="stat-value">${avg.toFixed(6)}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Минимум Teta</div>
+                    <div class="stat-value">${min.toFixed(6)}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Максимум Teta</div>
+                    <div class="stat-value">${max.toFixed(6)}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">|Teta − 1| < 1%</div>
+                    <div class="stat-value">${in1pct} (${(in1pct / count * 100).toFixed(1)}%)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">|Teta − 1| < 5%</div>
+                    <div class="stat-value">${in5pct} (${(in5pct / count * 100).toFixed(1)}%)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">|Teta − 1| < 10%</div>
+                    <div class="stat-value">${in10pct} (${(in10pct / count * 100).toFixed(1)}%)</div>
+                </div>
+            `;
+    }
+
+
+    // ===== ЭКСПОРТ =====
+
+function exportToCSV() {
+    const pList = filteredParticles;
+    let csv = '\uFEFF'; // BOM для Excel
+    const separator = ';';
+
+    // Заголовок
+    csv += 'Частица ↓ / Частица →' + separator;
+    pList.forEach(p => {
+        csv += `"${p.name} (${formatMass(p.mass)} kg, ${p.type})"` + separator;
+    });
+    csv += '\n';
+
+    // Данные
+    pList.forEach((p1, i) => {
+        csv += `"${p1.name} (${formatMass(p1.mass)} kg, ${p1.type})"` + separator;
+        pList.forEach((p2, j) => {
+            if (i === j) {
+                csv += '1' + separator;
+            } else {
+                const rel = getModelRatio(p1.id, p2.id);
+                if (rel) {
+                    const modelVal = rel.value;
+                    const expVal = p1.mass / p2.mass;
+                    const teta = modelVal / expVal;
+                    csv += `${modelVal.toExponential(4)}${separator}`;
+                } else {
+                    csv += '-' + separator;
+                }
+            }
+        });
+        csv += '\n';
+    });
+
+    downloadFile(csv, 'mass_relations.csv', 'text/csv;charset=utf-8');
+}
+
+function exportToJSON() {
+    const data = {
+        constants: { K: K, N: N_val, lnN: lnN },
+        particles: filteredParticles.map(p => ({
+            id: p.id,
+            name: p.name,
+            mass: p.mass,
+            type: p.type,
+            ln: p.ln
+        })),
+        relations: []
+    };
+
+    filteredParticles.forEach((p1, i) => {
+        filteredParticles.forEach((p2, j) => {
+            if (i !== j) {
+                const rel = getModelRatio(p1.id, p2.id);
+                if (rel) {
+                    const modelVal = rel.value;
+                    const expVal = p1.mass / p2.mass;
+                    data.relations.push({
+                        pair: `${p1.name} / ${p2.name}`,
+                        formula: rel.expr,
+                        model_value: modelVal,
+                        experimental_value: expVal,
+                        teta: modelVal / expVal
+                    });
+                }
+            }
+        });
+    });
+
+    downloadFile(JSON.stringify(data, null, 2), 'mass_relations.json', 'application/json');
+}
+
+function copyTableToClipboard() {
+    const pList = filteredParticles;
+    let text = '';
+    const separator = '\t';
+
+    // Заголовок
+    text += 'Частица ↓ / Частица →' + separator;
+    pList.forEach(p => {
+        text += `${p.name} (${formatMass(p.mass)})` + separator;
+    });
+    text += '\n';
+
+    // Данные
+    pList.forEach((p1, i) => {
+        text += `${p1.name} (${formatMass(p1.mass)})` + separator;
+        pList.forEach((p2, j) => {
+            if (i === j) {
+                text += '1' + separator;
+            } else {
+                const rel = getModelRatio(p1.id, p2.id);
+                if (rel) {
+                    text += rel.value.toExponential(4) + separator;
+                } else {
+                    text += '-' + separator;
+                }
+            }
+        });
+        text += '\n';
+    });
+
+    navigator.clipboard.writeText(text).then(() => {
+        alert('Таблица скопирована в буфер обмена!');
+    }).catch(() => {
+        alert('Не удалось скопировать. Проверьте разрешения браузера.');
+    });
+}
+
+function printTable() {
+    const pList = filteredParticles;
+    let html = '<html><head><meta charset="UTF-8"><title>Таблица отношений масс</title>';
+    html += '<style>body{font-family:Arial;font-size:10px;}table{border-collapse:collapse;}th,td{border:1px solid #000;padding:3px 5px;text-align:center;}th{background:#ddd;}</style></head><body>';
+    html += '<h2>Периодическая таблица отношений масс частиц (K=6)</h2>';
+    html += '<table><thead><tr><th>Частица ↓ / →</th>';
+
+    pList.forEach(p => {
+        html += `<th>${p.name}<br><small>${formatMass(p.mass)}</small></th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    pList.forEach((p1, i) => {
+        html += '<tr>';
+        html += `<td><b>${p1.name}</b><br><small>${formatMass(p1.mass)}</small></td>`;
+        pList.forEach((p2, j) => {
+            if (i === j) {
+                html += '<td style="background:#90EE90;"><b>1</b></td>';
+            } else {
+                const rel = getModelRatio(p1.id, p2.id);
+                if (rel) {
+                    const teta = rel.value / (p1.mass / p2.mass);
+                    const color = Math.abs(teta - 1) < 0.01 ? '#90EE90' :
+                                 Math.abs(teta - 1) < 0.05 ? '#FFD700' : '#FFB6C1';
+                    html += `<td style="background:${color};">${rel.value.toExponential(3)}</td>`;
+                } else {
+                    html += '<td>-</td>';
+                }
+            }
+        });
+        html += '</tr>';
+    });
+
+    html += '</tbody></table></body></html>';
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(html);
+    printWindow.document.close();
+    setTimeout(() => printWindow.print(), 500);
+}
+
+function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
